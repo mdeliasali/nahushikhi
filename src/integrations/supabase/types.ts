@@ -14,16 +14,378 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chapters: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          module_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          module_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          module_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapters_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          chapter_id: string
+          content: Json | null
+          created_at: string
+          id: string
+          is_published: boolean
+          lesson_type: Database["public"]["Enums"]["lesson_type"]
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chapter_id: string
+          content?: Json | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          lesson_type?: Database["public"]["Enums"]["lesson_type"]
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chapter_id?: string
+          content?: Json | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          lesson_type?: Database["public"]["Enums"]["lesson_type"]
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          created_at: string
+          description: string | null
+          estimated_weeks: number | null
+          icon: string | null
+          id: string
+          is_published: boolean
+          level: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          estimated_weeks?: number | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean
+          level?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          estimated_weeks?: number | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean
+          level?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          chapter_id: string
+          correct_answer: string
+          created_at: string
+          difficulty: number
+          explanation: string | null
+          id: string
+          is_practice_question: boolean
+          is_quiz_question: boolean
+          lesson_id: string | null
+          options: Json | null
+          question_text: string
+          question_type: Database["public"]["Enums"]["question_type"]
+          sort_order: number
+        }
+        Insert: {
+          chapter_id: string
+          correct_answer: string
+          created_at?: string
+          difficulty?: number
+          explanation?: string | null
+          id?: string
+          is_practice_question?: boolean
+          is_quiz_question?: boolean
+          lesson_id?: string | null
+          options?: Json | null
+          question_text: string
+          question_type?: Database["public"]["Enums"]["question_type"]
+          sort_order?: number
+        }
+        Update: {
+          chapter_id?: string
+          correct_answer?: string
+          created_at?: string
+          difficulty?: number
+          explanation?: string | null
+          id?: string
+          is_practice_question?: boolean
+          is_quiz_question?: boolean
+          lesson_id?: string | null
+          options?: Json | null
+          question_text?: string
+          question_type?: Database["public"]["Enums"]["question_type"]
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_attempts: {
+        Row: {
+          answers: Json | null
+          chapter_id: string
+          completed_at: string
+          id: string
+          score: number
+          total_questions: number
+          user_id: string
+          weak_topics: string[] | null
+        }
+        Insert: {
+          answers?: Json | null
+          chapter_id: string
+          completed_at?: string
+          id?: string
+          score?: number
+          total_questions?: number
+          user_id: string
+          weak_topics?: string[] | null
+        }
+        Update: {
+          answers?: Json | null
+          chapter_id?: string
+          completed_at?: string
+          id?: string
+          score?: number
+          total_questions?: number
+          user_id?: string
+          weak_topics?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_weak_topics: {
+        Row: {
+          chapter_id: string
+          id: string
+          incorrect_count: number
+          last_tested: string
+          mastered: boolean
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          id?: string
+          incorrect_count?: number
+          last_tested?: string
+          mastered?: boolean
+          topic: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          id?: string
+          incorrect_count?: number
+          last_tested?: string
+          mastered?: boolean
+          topic?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_weak_topics_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      lesson_type: "lesson" | "practice" | "quiz" | "review" | "tool"
+      question_type:
+        | "mcq"
+        | "fill_blank"
+        | "matching"
+        | "identification"
+        | "irab_analysis"
+        | "root_extraction"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +512,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      lesson_type: ["lesson", "practice", "quiz", "review", "tool"],
+      question_type: [
+        "mcq",
+        "fill_blank",
+        "matching",
+        "identification",
+        "irab_analysis",
+        "root_extraction",
+      ],
+    },
   },
 } as const
