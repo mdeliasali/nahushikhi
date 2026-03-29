@@ -12,6 +12,8 @@ import { useQuery } from '@tanstack/react-query';
 
 interface LessonContent {
   explanation: string;
+  arabicDefinition: string;
+  bengaliDefinition: string;
   arabicExamples: { arabic: string; bengali: string }[];
   realArabic: { sentence: string; analysis: string }[];
   keywords: string[];
@@ -40,6 +42,8 @@ export default function AdminLessonEditor({ lessonId, onBack }: Props) {
 
   const [content, setContent] = useState<LessonContent>({
     explanation: '',
+    arabicDefinition: '',
+    bengaliDefinition: '',
     arabicExamples: [],
     realArabic: [],
     keywords: [],
@@ -51,6 +55,8 @@ export default function AdminLessonEditor({ lessonId, onBack }: Props) {
       const c = lesson.content as any;
       setContent({
         explanation: c.explanation || '',
+        arabicDefinition: c.arabicDefinition || '',
+        bengaliDefinition: c.bengaliDefinition || '',
         arabicExamples: c.arabicExamples || [],
         realArabic: c.realArabic || [],
         keywords: c.keywords || [],
@@ -114,6 +120,34 @@ export default function AdminLessonEditor({ lessonId, onBack }: Props) {
         <h2 className="text-xl font-bold">📝 কন্টেন্ট সম্পাদনা: {lesson?.title}</h2>
         <Button onClick={handleSave}><Save className="h-4 w-4 mr-1" />সেভ করুন</Button>
       </div>
+
+      {/* Arabic Definition */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">التعريف আরবি সংজ্ঞা</CardTitle></CardHeader>
+        <CardContent>
+          <Textarea
+            value={content.arabicDefinition}
+            onChange={e => setContent(c => ({ ...c, arabicDefinition: e.target.value }))}
+            placeholder="আরবি সংজ্ঞা লিখুন..."
+            rows={4}
+            className="font-arabic text-right text-lg"
+            dir="rtl"
+          />
+        </CardContent>
+      </Card>
+
+      {/* Bengali Definition */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">বাংলা সংজ্ঞা</CardTitle></CardHeader>
+        <CardContent>
+          <Textarea
+            value={content.bengaliDefinition}
+            onChange={e => setContent(c => ({ ...c, bengaliDefinition: e.target.value }))}
+            placeholder="বাংলা সংজ্ঞা লিখুন..."
+            rows={4}
+          />
+        </CardContent>
+      </Card>
 
       {/* Explanation */}
       <Card>

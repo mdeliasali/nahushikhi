@@ -20,7 +20,7 @@ export default function PracticePage() {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex-1 h-full min-h-full flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <p className="text-muted-foreground">এই অধ্যায়ে কোনো অনুশীলন নেই</p>
           <Button onClick={() => navigate('/')}>হোমে ফিরুন</Button>
@@ -48,7 +48,7 @@ export default function PracticePage() {
   const options = Array.isArray(currentQ?.options) ? (currentQ.options as string[]) : [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 h-full min-h-full overflow-y-auto bg-background">
       <header className="border-b bg-card shadow-card sticky top-0 z-50">
         <div className="container flex items-center gap-4 h-14 px-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/')}>

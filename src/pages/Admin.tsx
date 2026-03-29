@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -23,11 +23,14 @@ export default function Admin() {
   const [selectedChapterId, setSelectedChapterId] = useState<string>('');
   const [selectedLessonId, setSelectedLessonId] = useState<string>('');
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">লোড হচ্ছে...</div>;
-  if (!isAdmin) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      navigate('/');
+    }
+  }, [loading, isAdmin, navigate]);
+
+  if (loading) return <div className="flex-1 h-full min-h-full flex items-center justify-center">লোড হচ্ছে...</div>;
+  if (!isAdmin) return null;
 
   const goBack = () => {
     switch (view) {
@@ -49,9 +52,9 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen w-full overflow-y-auto overflow-x-hidden bg-background">
       <header className="border-b bg-card shadow-card sticky top-0 z-50">
-        <div className="container flex items-center gap-4 h-14 px-4">
+        <div className="container mx-auto max-w-5xl flex items-center gap-4 h-14 px-4 sm:px-6">
           <Button variant="ghost" size="icon" onClick={goBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -65,7 +68,7 @@ export default function Admin() {
         </div>
       </header>
 
-      <main className="container px-4 py-6 max-w-4xl">
+      <main className="container mx-auto px-4 sm:px-6 py-6 max-w-5xl">
         {view === 'modules' && (
           <AdminModuleList
             onSelectModule={(id) => { setSelectedModuleId(id); setView('chapters'); }}
