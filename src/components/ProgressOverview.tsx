@@ -1,12 +1,33 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Trophy, TrendingUp, Sparkles } from 'lucide-react';
+import { BookOpen, Trophy, TrendingUp, Sparkles, Flame } from 'lucide-react';
+import { useUserProgress } from '@/hooks/useProgress';
+
+export interface Module {
+  id: string;
+  title: string;
+  [key: string]: any;
+}
+
+export interface Chapter {
+  id: string;
+  title: string;
+  module_id: string;
+  [key: string]: any;
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  chapter_id: string;
+  [key: string]: any;
+}
 
 interface Props {
   curriculum?: {
-    modules: any[];
-    chapters: any[];
-    lessons: any[];
+    modules: Module[];
+    chapters: Chapter[];
+    lessons: Lesson[];
   } | null;
   completedLessonIds: Set<string>;
 }
@@ -15,6 +36,33 @@ export default function ProgressOverview({ curriculum, completedLessonIds }: Pro
   const totalLessons = curriculum?.lessons.length ?? 0;
   const completedCount = completedLessonIds.size;
   const pct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+  const { data: progress } = useUserProgress();
+  let streakCount = 0;
+  if (progress && progress.length > 0) {
+    const dates = progress
+      .filter(p => p.completed && p.completed_at)
+      .map(p => new Date(p.completed_at!).toISOString().split('T')[0])
+      .sort((a, b) => b.localeCompare(a));
+    
+    const uniqueDates = [...new Set(dates)];
+    
+    if (uniqueDates.length > 0) {
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      
+      let currentDateIndex = 0;
+      if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
+        let expectedDate = uniqueDates[0];
+        while (currentDateIndex < uniqueDates.length && uniqueDates[currentDateIndex] === expectedDate) {
+          streakCount++;
+          currentDateIndex++;
+          const prevDay = new Date(new Date(expectedDate).getTime() - 86400000);
+          expectedDate = prevDay.toISOString().split('T')[0];
+        }
+      }
+    }
+  }
 
   const level = pct < 20 ? '🌱 নতুন শুরু' :
     pct < 40 ? '🌿 প্রাথমিক' :
@@ -39,8 +87,14 @@ export default function ProgressOverview({ curriculum, completedLessonIds }: Pro
                 <span className="text-base font-extrabold text-foreground">{level}</span>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-2xl font-black text-primary">{pct}%</span>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-2xl font-black text-primary leading-none">{pct}%</span>
+              {streakCount > 0 && (
+                <div className="flex items-center gap-1 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full ring-1 ring-orange-100">
+                  <Flame className="h-3 w-3 fill-orange-500" />
+                  <span className="text-[10px] font-black">{streakCount} দিনের ধারা</span>
+                </div>
+              )}
             </div>
           </div>
 

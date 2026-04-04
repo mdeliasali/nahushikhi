@@ -12,7 +12,10 @@ import QuizPage from "./pages/QuizPage";
 import PracticePage from "./pages/PracticePage";
 import ProgressPage from "./pages/ProgressPage";
 import ToolsPage from "./pages/ToolsPage";
+import RealArabicPage from "./pages/RealArabicPage";
+import SmartPracticePage from "./pages/SmartPracticePage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,10 +29,16 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin" element={<Admin />} />
+            
+            <Route element={<ProtectedRoute requireAdmin />}>
+              <Route path="/admin" element={<Admin />} />
+            </Route>
+            
             <Route path="/lesson/:lessonId" element={<LessonPage />} />
             <Route path="/quiz/:chapterId" element={<QuizPage />} />
             <Route path="/practice/:chapterId" element={<PracticePage />} />
+            <Route path="/real-arabic/:lessonId" element={<RealArabicPage />} />
+            <Route path="/smart-practice/:lessonId" element={<SmartPracticePage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/tools" element={<ToolsPage />} />
             <Route path="*" element={<NotFound />} />

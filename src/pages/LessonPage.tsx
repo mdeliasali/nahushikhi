@@ -6,6 +6,7 @@ import { useMarkComplete, useUserProgress } from '@/hooks/useProgress';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, ArrowRight, CheckCircle2, BookOpen, Sparkles, Key, Brain, Languages, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
@@ -57,10 +58,18 @@ export default function LessonPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 h-full min-h-full flex items-center justify-center bg-background">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl gradient-primary animate-bounce shadow-elevated" />
-          <span className="text-muted-foreground font-medium">পাঠ লোড হচ্ছে...</span>
+      <div className="flex-1 h-full min-h-full flex flex-col bg-background p-6 space-y-8 animate-pulse">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-6 w-1/2" />
+          </div>
+        </div>
+        <div className="space-y-4 pt-4 px-2">
+          <Skeleton className="h-32 w-full rounded-[2rem]" />
+          <Skeleton className="h-40 w-full rounded-[2rem]" />
+          <Skeleton className="h-24 w-full rounded-[2rem]" />
         </div>
       </div>
     );

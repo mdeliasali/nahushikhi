@@ -11,6 +11,16 @@ type ChapterInsert = Database['public']['Tables']['chapters']['Insert'];
 type LessonInsert = Database['public']['Tables']['lessons']['Insert'];
 type QuestionInsert = Database['public']['Tables']['questions']['Insert'];
 
+export interface AppSetting {
+  id: string;
+  key: string;
+  value: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+
 export function useModules() {
   return useQuery({
     queryKey: ['modules'],
@@ -22,6 +32,7 @@ export function useModules() {
       if (error) throw error;
       return data as Module[];
     },
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -36,6 +47,7 @@ export function useChapters(moduleId?: string) {
       return data as Chapter[];
     },
     enabled: !!moduleId || moduleId === undefined,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -50,6 +62,7 @@ export function useLessons(chapterId?: string) {
       return data as Lesson[];
     },
     enabled: !!chapterId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -64,6 +77,7 @@ export function useQuestions(chapterId?: string) {
       return data as Question[];
     },
     enabled: !!chapterId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -86,6 +100,7 @@ export function useFullCurriculum() {
         lessons: lessonsRes.data as Lesson[],
       };
     },
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -221,4 +236,31 @@ export function useQuestionMutations() {
   });
 
   return { create, update, remove };
+}
+
+export function useAppSettings() {
+  return useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('app_settings' as any).select('*');
+      if (error) throw error;
+      return (data as unknown) as AppSetting[];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useAppSettingMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['app-settings'] });
+
+  const update = useMutation({
+    mutationFn: async ({ key, value }: { key: string, value: string }) => {
+      const { error } = await supabase.from('app_settings' as any).update({ value, updated_at: new Date().toISOString() }).eq('key', key);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  return { update };
 }

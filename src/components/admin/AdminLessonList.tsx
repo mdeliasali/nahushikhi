@@ -7,22 +7,52 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit2, Trash2, FileText } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Plus, Edit2, Trash2, FileText, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Props {
   chapterId: string;
   onEditLesson: (id: string) => void;
 }
 
+import { useQueryClient } from '@tanstack/react-query';
+
 export default function AdminLessonList({ chapterId, onEditLesson }: Props) {
+  const queryClient = useQueryClient();
   const { data: lessons, isLoading } = useLessons(chapterId);
   const { create, update, remove } = useLessonMutations();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkJson, setBulkJson] = useState('');
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ title: '', lesson_type: 'lesson' as any, sort_order: 0 });
 
   const resetForm = () => { setForm({ title: '', lesson_type: 'lesson', sort_order: 0 }); setEditId(null); };
+
+  const handleBulkImport = async () => {
+    try {
+      const parsed = JSON.parse(bulkJson);
+      if (!Array.isArray(parsed)) throw new Error('JSON array আশা করা হচ্ছে');
+      
+      const payload = parsed.map(item => ({
+        ...item,
+        chapter_id: chapterId,
+      }));
+
+      const { error } = await supabase.from('lessons').insert(payload);
+      if (error) throw error;
+
+      toast.success('থোক ইমপোর্ট সফল হয়েছে');
+      setBulkOpen(false);
+      setBulkJson('');
+      queryClient.invalidateQueries({ queryKey: ['lessons', chapterId] });
+      queryClient.invalidateQueries({ queryKey: ['full-curriculum'] });
+    } catch (e: any) {
+      toast.error('ইমপোর্ট ব্যর্থ: ' + e.message);
+    }
+  };
 
   const openEdit = (l: any) => {
     setForm({ title: l.title, lesson_type: l.lesson_type, sort_order: l.sort_order || 0 });
@@ -50,17 +80,38 @@ export default function AdminLessonList({ chapterId, onEditLesson }: Props) {
   };
 
   const typeLabels: Record<string, string> = {
-    lesson: '📄 পাঠ', practice: '📝 অনুশীলন', quiz: '✅ কুইজ', review: '🔁 রিভিশন', tool: '🎮 টুল',
+    lesson: '📄 পাঠ', practice: '📝 অনুশীলন', real_arabic: '🧠 রিয়েল আরবি', smart_practice: '🎯 স্মার্ট প্র্যাকটিস', quiz: '✅ কুইজ', review: '🔁 রিভিশন', tool: '🎮 টুল',
   };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">📄 পাঠ ব্যবস্থাপনা</h2>
-        <Dialog open={dialogOpen} onOpenChange={o => { setDialogOpen(o); if (!o) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-1" />নতুন পাঠ</Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline"><Upload className="h-4 w-4 mr-1" />থোক ইমপোর্ট</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>JSON থেকে থোক ইমপোর্ট</DialogTitle></DialogHeader>
+              <div className="space-y-4">
+                <Textarea 
+                  placeholder='[{"title":"Lesson 1","lesson_type":"lesson","sort_order":1}]'
+                  className="font-mono text-xs h-40"
+                  value={bulkJson}
+                  onChange={e => setBulkJson(e.target.value)}
+                />
+                <Button onClick={handleBulkImport} className="w-full" disabled={!bulkJson}>
+                  ইমপোর্ট করুন
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={dialogOpen} onOpenChange={o => { setDialogOpen(o); if (!o) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button size="sm"><Plus className="h-4 w-4 mr-1" />নতুন পাঠ</Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editId ? 'পাঠ সম্পাদনা' : 'নতুন পাঠ'}</DialogTitle></DialogHeader>
             <div className="space-y-4">
@@ -75,6 +126,8 @@ export default function AdminLessonList({ chapterId, onEditLesson }: Props) {
                   <SelectContent>
                     <SelectItem value="lesson">📄 পাঠ</SelectItem>
                     <SelectItem value="practice">📝 অনুশীলন</SelectItem>
+                    <SelectItem value="real_arabic">🧠 রিয়েল আরবি</SelectItem>
+                    <SelectItem value="smart_practice">🎯 স্মার্ট প্র্যাকটিস</SelectItem>
                     <SelectItem value="quiz">✅ কুইজ</SelectItem>
                     <SelectItem value="review">🔁 রিভিশন</SelectItem>
                     <SelectItem value="tool">🎮 টুল</SelectItem>
@@ -91,6 +144,7 @@ export default function AdminLessonList({ chapterId, onEditLesson }: Props) {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="space-y-2">

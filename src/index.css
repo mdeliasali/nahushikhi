@@ -74,8 +74,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-bengali);
-    -webkit-user-select: none;
-    user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
   }
@@ -136,13 +134,22 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .animate-in-fade {
-    animation: fadeIn 0.5s ease-out;
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-in-fade {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-in-fade {
+      /* Instant appearance, no motion */
+      animation: none;
+    }
   }
 
   .no-scrollbar::-webkit-scrollbar {

@@ -42,7 +42,7 @@ export default function QuizPage() {
   }, [chapterId]);
 
   useEffect(() => {
-    if (dbQuestions) {
+    if (dbQuestions && chapterTitle) {
       const quizQs = dbQuestions
         .filter(q => q.is_quiz_question)
         .slice(0, 5)
@@ -55,17 +55,17 @@ export default function QuizPage() {
           question_type: q.question_type,
         }));
 
-      generateAIQuestions(quizQs);
+      generateAIQuestions(quizQs, chapterTitle);
     }
-  }, [dbQuestions]);
+  }, [dbQuestions, chapterTitle]);
 
-  const generateAIQuestions = async (adminQs: QuizQuestion[]) => {
+  const generateAIQuestions = async (adminQs: QuizQuestion[], cTitle: string) => {
     setAiLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-quiz', {
         body: {
           chapterId,
-          chapterTitle,
+          chapterTitle: cTitle,
           existingQuestions: adminQs.map(q => q.question_text),
           count: 5,
         },

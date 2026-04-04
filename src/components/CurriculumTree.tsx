@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronDown, Lock, CheckCircle2, BookOpen, FileText, HelpCircle, RotateCcw, Wrench, PlayCircle } from 'lucide-react';
+import { ChevronRight, ChevronDown, Lock, CheckCircle2, BookOpen, FileText, HelpCircle, RotateCcw, Wrench, PlayCircle, Brain, Target } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 import { Progress } from './ui/progress';
 
@@ -21,6 +21,8 @@ const lessonTypeIcon: Record<string, React.ReactNode> = {
   quiz: <HelpCircle className="h-4 w-4" />,
   review: <RotateCcw className="h-4 w-4" />,
   tool: <Wrench className="h-4 w-4" />,
+  real_arabic: <Brain className="h-4 w-4" />,
+  smart_practice: <Target className="h-4 w-4" />,
 };
 
 const lessonTypeLabel: Record<string, string> = {
@@ -29,6 +31,8 @@ const lessonTypeLabel: Record<string, string> = {
   quiz: 'কুইজ',
   review: 'রিভিশন',
   tool: 'টুল',
+  real_arabic: 'রিয়েল আরবি',
+  smart_practice: 'স্মার্ট প্র্যাকটিস',
 };
 
 export default function CurriculumTree({ modules, chapters, lessons, completedLessonIds }: Props) {
@@ -62,10 +66,15 @@ export default function CurriculumTree({ modules, chapters, lessons, completedLe
   };
 
   const handleLessonClick = (lesson: Lesson) => {
-    if (lesson.lesson_type === 'quiz') {
+    const type = lesson.lesson_type as string;
+    if (type === 'quiz') {
       navigate(`/quiz/${lesson.chapter_id}`);
-    } else if (lesson.lesson_type === 'practice') {
+    } else if (type === 'practice') {
       navigate(`/practice/${lesson.chapter_id}`);
+    } else if (type === 'real_arabic') {
+      navigate(`/real-arabic/${lesson.id}`);
+    } else if (type === 'smart_practice') {
+      navigate(`/smart-practice/${lesson.id}`);
     } else {
       navigate(`/lesson/${lesson.id}`);
     }

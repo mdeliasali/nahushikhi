@@ -6,14 +6,15 @@ import {
   useModuleMutations, useChapterMutations, useLessonMutations, useQuestionMutations,
 } from '@/hooks/useCurriculum';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, BookOpen, Layers, FileText, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Plus, BookOpen, Layers, FileText, HelpCircle, Settings } from 'lucide-react';
 import AdminModuleList from '@/components/admin/AdminModuleList';
 import AdminChapterList from '@/components/admin/AdminChapterList';
 import AdminLessonList from '@/components/admin/AdminLessonList';
 import AdminLessonEditor from '@/components/admin/AdminLessonEditor';
 import AdminQuestionList from '@/components/admin/AdminQuestionList';
+import AdminAISettings from '@/components/admin/AdminAISettings';
 
-type AdminView = 'modules' | 'chapters' | 'lessons' | 'lesson-editor' | 'questions';
+type AdminView = 'modules' | 'chapters' | 'lessons' | 'lesson-editor' | 'questions' | 'ai-settings';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export default function Admin() {
       case 'lessons': setView('chapters'); break;
       case 'lesson-editor': setView('lessons'); break;
       case 'questions': setView('chapters'); break;
+      case 'ai-settings': setView('modules'); break;
       default: navigate('/'); break;
     }
   };
@@ -48,6 +50,7 @@ export default function Admin() {
     if (view === 'lessons' || view === 'lesson-editor') parts.push('অধ্যায়');
     if (view === 'lesson-editor') parts.push('পাঠ সম্পাদনা');
     if (view === 'questions') parts.push('প্রশ্ন');
+    if (view === 'ai-settings') parts.push('AI কনফিগারেশন');
     return parts.join(' › ');
   };
 
@@ -61,6 +64,10 @@ export default function Admin() {
           <div className="flex-1">
             <h1 className="text-sm font-semibold">{breadcrumb()}</h1>
           </div>
+          <Button variant="ghost" size="sm" onClick={() => setView('ai-settings')} className={view === 'ai-settings' ? 'text-primary' : ''}>
+            <Settings className="h-4 w-4 mr-1" />
+            সেটিংস
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
             <BookOpen className="h-4 w-4 mr-1" />
             হোম
@@ -95,6 +102,9 @@ export default function Admin() {
         )}
         {view === 'questions' && (
           <AdminQuestionList chapterId={selectedChapterId} />
+        )}
+        {view === 'ai-settings' && (
+          <AdminAISettings />
         )}
       </main>
     </div>

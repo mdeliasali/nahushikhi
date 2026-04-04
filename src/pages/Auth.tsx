@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { BookOpen, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -23,6 +24,24 @@ export default function Auth() {
       toast.error(error.message);
     } else {
       navigate('/');
+    }
+    setLoading(false);
+  };
+
+  const handleResetPassword = async () => {
+    const emailInput = document.getElementById('login-email') as HTMLInputElement;
+    if (!emailInput || !emailInput.value) {
+      toast.error('অনুগ্রহ করে উপরের ইমেইল ঘরে আপনার ইমেইল লিখুন');
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(emailInput.value, {
+      redirectTo: window.location.origin + '/auth',
+    });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('পাসওয়ার্ড রিসেট লিংক আপনার ইমেইলে পাঠানো হয়েছে!');
     }
     setLoading(false);
   };
@@ -79,7 +98,12 @@ export default function Auth() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password" className="font-bold text-xs uppercase tracking-wider ml-1">পাসওয়ার্ড</Label>
+                  <div className="flex items-center justify-between ml-1">
+                    <Label htmlFor="login-password" className="font-bold text-xs uppercase tracking-wider">পাসওয়ার্ড</Label>
+                    <button type="button" onClick={handleResetPassword} className="text-xs font-bold text-primary hover:underline" disabled={loading}>
+                      পাসওয়ার্ড ভুলে গেছেন?
+                    </button>
+                  </div>
                   <div className="relative group">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                     <Input id="login-password" name="password" type="password" required placeholder="••••••••" 
