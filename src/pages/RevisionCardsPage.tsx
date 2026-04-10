@@ -48,6 +48,8 @@ export default function RevisionCardsPage() {
               <select 
                 className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-amber-100 outline-none"
                 value={selectedClass}
+                title="শ্রেণি নির্বাচন করুন"
+                aria-label="শ্রেণি নির্বাচন করুন"
                 onChange={(e) => {
                   setSelectedClass(e.target.value as ExamClass);
                   setCurrentIndex(0);
@@ -152,6 +154,8 @@ export default function RevisionCardsPage() {
                   <button 
                     onClick={handlePrev}
                     disabled={currentIndex === 0}
+                    title="পূর্ববর্তী কার্ড"
+                    aria-label="পূর্ববর্তী কার্ড"
                     className="flex-1 h-14 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <ChevronLeft className="h-6 w-6 text-slate-600" />

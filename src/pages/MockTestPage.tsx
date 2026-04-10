@@ -129,6 +129,8 @@ export default function MockTestPage() {
                 className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-100 outline-none"
                 value={selectedClass}
                 onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
+                title="শ্রেণি নির্বাচন করুন"
+                aria-label="শ্রেণি নির্বাচন করুন"
               >
                 <option value="dakhil">দাখিল</option>
                 <option value="alim">আলিম</option>

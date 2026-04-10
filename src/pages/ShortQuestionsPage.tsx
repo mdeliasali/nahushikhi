@@ -32,6 +32,8 @@ export default function ShortQuestionsPage() {
               <select 
                 className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-rose-100 outline-none"
                 value={selectedClass}
+                title="শ্রেণি নির্বাচন করুন"
+                aria-label="শ্রেণি নির্বাচন করুন"
                 onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
               >
                 <option value="dakhil">দাখিল</option>

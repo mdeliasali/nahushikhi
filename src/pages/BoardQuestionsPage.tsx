@@ -38,6 +38,8 @@ export default function BoardQuestionsPage() {
                 className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none"
                 value={selectedClass}
                 onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
+                title="শ্রেণি নির্বাচন করুন"
+                aria-label="শ্রেণি নির্বাচন করুন"
               >
                 <option value="dakhil">দাখিল</option>
                 <option value="alim">আলিম</option>
@@ -47,6 +49,8 @@ export default function BoardQuestionsPage() {
                 className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none"
                 value={selectedYear || ""}
                 onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : undefined)}
+                title="সাল নির্বাচন করুন"
+                aria-label="সাল নির্বাচন করুন"
               >
                 <option value="">সকল সাল</option>
                 {years.map(y => (

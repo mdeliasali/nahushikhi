@@ -150,6 +150,8 @@ export default function Auth() {
                     id="signup-class" 
                     name="examClass" 
                     required 
+                    title="আপনার শ্রেণি নির্বাচন করুন"
+                    aria-label="আপনার শ্রেণি নির্বাচন করুন"
                     className="w-full h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium px-4 appearance-none cursor-pointer"
                   >
                     <option value="dakhil">দাখিল পরীক্ষা (Dakhil)</option>
