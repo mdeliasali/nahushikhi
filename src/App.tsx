@@ -16,6 +16,10 @@ import RealArabicPage from "./pages/RealArabicPage";
 import SmartPracticePage from "./pages/SmartPracticePage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import BoardQuestionsPage from "./pages/BoardQuestionsPage";
+import MockTestPage from "./pages/MockTestPage";
+import RevisionCardsPage from "./pages/RevisionCardsPage";
+import ShortQuestionsPage from "./pages/ShortQuestionsPage";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +45,10 @@ const App = () => (
             <Route path="/smart-practice/:lessonId" element={<SmartPracticePage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/tools" element={<ToolsPage />} />
+            <Route path="/question-bank" element={<BoardQuestionsPage />} />
+            <Route path="/mock-test" element={<MockTestPage />} />
+            <Route path="/revision" element={<RevisionCardsPage />} />
+            <Route path="/short-questions" element={<ShortQuestionsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

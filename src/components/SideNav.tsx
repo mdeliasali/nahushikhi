@@ -1,4 +1,4 @@
-import { Home, BarChart3, Settings, Shield, BookOpen } from 'lucide-react';
+import { Home, BookOpen, Timer, Copy, User, Shield } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -9,8 +9,10 @@ export default function SideNav() {
 
   const navItems = [
     { icon: Home, label: 'হোম', path: '/', id: 'sidenav-home' },
-    { icon: BarChart3, label: 'অগ্রগতি', path: '/progress', id: 'sidenav-progress' },
-    { icon: Settings, label: 'টুলস', path: '/tools', id: 'sidenav-tools' },
+    { icon: BookOpen, label: 'প্রশ্নব্যাংক', path: '/question-bank', id: 'sidenav-qb' },
+    { icon: Timer, label: 'মক টেস্ট', path: '/mock-test', id: 'sidenav-mock' },
+    { icon: Copy, label: 'রিভিশন', path: '/revision', id: 'sidenav-rev' },
+    { icon: User, label: 'প্রোফাইল', path: '/progress', id: 'sidenav-progress' },
   ];
 
   if (isAdmin) {

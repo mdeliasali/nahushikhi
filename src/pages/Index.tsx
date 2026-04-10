@@ -1,19 +1,17 @@
 import { useAuth } from '@/hooks/useAuth';
-import { useFullCurriculum } from '@/hooks/useCurriculum';
-import { useUserProgress } from '@/hooks/useProgress';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Shield, LogOut, User } from 'lucide-react';
-import CurriculumTree from '@/components/CurriculumTree';
-import ProgressOverview from '@/components/ProgressOverview';
+import { BookOpen, LogOut, User, Target, Shield, Settings, Timer, ListChecks, Copy } from 'lucide-react';
 import Layout from '@/components/Layout';
+import { Progress } from "@/components/ui/progress";
 
 export default function Index() {
   const { user, isAdmin, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { data: curriculum, isLoading } = useFullCurriculum();
-  const { data: progress } = useUserProgress();
 
+  // Temporary mock data for the dashboard until we hook it to Supabase
+  const todaysGoal = { total: 50, completed: 15, currentStreak: 3 };
+  
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -29,9 +27,7 @@ export default function Index() {
     return <Navigate to="/auth" replace />;
   }
 
-  const completedLessonIds = new Set<string>(
-    progress?.filter(p => p.completed).map(p => p.lesson_id as string) ?? []
-  );
+  const goalProgress = (todaysGoal.completed / todaysGoal.total) * 100;
 
   return (
     <Layout>
@@ -40,31 +36,20 @@ export default function Index() {
         <header className="sticky top-0 z-40 glass-morphism w-full border-b border-white/20">
           <div className="container mx-auto max-w-5xl flex items-center justify-between h-16 px-4 sm:px-6">
             <div className="flex items-center gap-3">
-              {/* Hide brand in header on desktop since sidebar shows it */}
               <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-sm ring-1 ring-white/20 lg:hidden">
                 <BookOpen className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="lg:hidden">
                 <h1 className="text-lg font-extrabold tracking-tight leading-tight">নাহু শিখি</h1>
-                <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">আরবি ব্যাকরণ</p>
+                <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">এক্সাম ড্যাশবোর্ড</p>
               </div>
               <h1 className="hidden lg:block text-lg font-extrabold tracking-tight">ড্যাশবোর্ড</h1>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="w-10 h-10 rounded-full hover:bg-white/40"
-                onClick={() => navigate('/progress')}
-              >
+              <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full hover:bg-white/40" onClick={() => navigate('/progress')}>
                 <User className="h-5 w-5 text-foreground/80" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="w-10 h-10 rounded-full hover:bg-red-50 text-destructive/80"
-                onClick={signOut}
-              >
+              <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full hover:bg-red-50 text-destructive/80" onClick={signOut}>
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
@@ -73,64 +58,123 @@ export default function Index() {
 
         {/* Content */}
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 pt-6 space-y-6 animate-in-fade">
-          {/* Hero section */}
+          
+          {/* Hero section with Today's Target */}
           <div className="relative overflow-hidden rounded-3xl gradient-primary p-6 sm:p-8 text-primary-foreground shadow-elevated ring-1 ring-white/10">
             <div className="absolute -right-6 -bottom-6 opacity-10">
-              <BookOpen className="w-32 h-32 rotate-12" />
+              <Target className="w-32 h-32 rotate-12" />
             </div>
-            <div className="relative z-10 flex flex-col gap-1">
-              <h2 className="text-2xl sm:text-3xl font-bold">আসসালামু আলাইকুম!</h2>
-              <p className="text-sm sm:text-base opacity-90">আপনার আজকের পাঠ শুরু করুন।</p>
+            <div className="relative z-10 flex flex-col gap-4">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold">আসসালামু আলাইকুম!</h2>
+                <p className="text-sm sm:text-base opacity-90 mt-1">আপনার দাখিল/আলিম পরীক্ষার প্রস্তুতি শুরু করুন।</p>
+              </div>
+              
+              <div className="bg-white/10 rounded-2xl p-4 sm:p-5 backdrop-blur-sm border border-white/20 max-w-md mt-2">
+                <div className="flex items-center justify-between mb-3 text-sm font-semibold">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 bg-white/20 rounded-md p-0.5" />
+                    <span>আজকের লক্ষ্য</span>
+                  </div>
+                  <span className="font-bold bg-white/20 px-2 py-1 rounded-full">{todaysGoal.completed} / {todaysGoal.total} MCQ</span>
+                </div>
+                <Progress value={goalProgress} className="h-2.5 bg-white/10" />
+                <p className="text-xs mt-3 opacity-90 font-medium flex items-center gap-1.5">
+                  <span className="text-amber-300">🔥</span> {todaysGoal.currentStreak} দিনের নিয়মিত অধ্যয়ন স্ট্রাইক চলছে!
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Two-column layout on large screens */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main content (curriculum) */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-extrabold tracking-tight">📚 পাঠ্যক্রম</h2>
-                  <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-                    {curriculum?.lessons?.length || 0} টি পাঠ
-                  </span>
+            
+            {/* Quick Actions */}
+            <div className="lg:col-span-2 space-y-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-extrabold tracking-tight">🚀 দ্রুত শুরু করুন</h2>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 sm:gap-5">
+                <div 
+                  onClick={() => navigate('/mock-test')}
+                  className="glass-card p-5 sm:p-6 rounded-[2rem] border border-indigo-100 cursor-pointer hover:scale-[1.02] hover:bg-white/90 transition-all duration-300 shadow-sm flex flex-col gap-3 sm:gap-4 group"
+                >
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition-colors border border-indigo-100">
+                    <Timer className="h-6 w-6 sm:h-7 sm:w-7 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">মডেল টেস্ট</h3>
+                    <p className="text-xs text-muted-foreground mt-1 font-medium line-clamp-1">৩০ মার্কের পরীক্ষা</p>
+                  </div>
                 </div>
+
+                <div 
+                  onClick={() => navigate('/question-bank')}
+                  className="glass-card p-5 sm:p-6 rounded-[2rem] border border-blue-100 cursor-pointer hover:scale-[1.02] hover:bg-white/90 transition-all duration-300 shadow-sm flex flex-col gap-3 sm:gap-4 group"
+                >
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors border border-blue-100">
+                    <BookOpen className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">বোর্ড প্রশ্ন</h3>
+                    <p className="text-xs text-muted-foreground mt-1 font-medium line-clamp-1">বিগত সালের প্রশ্ন</p>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => navigate('/revision')}
+                  className="glass-card p-5 sm:p-6 rounded-[2rem] border border-amber-100 cursor-pointer hover:scale-[1.02] hover:bg-white/90 transition-all duration-300 shadow-sm flex flex-col gap-3 sm:gap-4 group"
+                >
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors border border-amber-100">
+                    <Copy className="h-6 w-6 sm:h-7 sm:w-7 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">রিভিশন কার্ড</h3>
+                    <p className="text-xs text-muted-foreground mt-1 font-medium line-clamp-1">নিয়ম ও সংজ্ঞা</p>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => navigate('/short-questions')}
+                  className="glass-card p-5 sm:p-6 rounded-[2rem] border border-rose-100 cursor-pointer hover:scale-[1.02] hover:bg-white/90 transition-all duration-300 shadow-sm flex flex-col gap-3 sm:gap-4 group"
+                >
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors border border-rose-100">
+                    <ListChecks className="h-6 w-6 sm:h-7 sm:w-7 text-rose-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">সংক্ষিপ্ত প্রশ্ন</h3>
+                    <p className="text-xs text-muted-foreground mt-1 font-medium line-clamp-1">মডেল উত্তরসহ</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Side Shortcuts */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-extrabold tracking-tight mb-4 hidden lg:block">⚙️ শর্টকাট</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start h-14 rounded-[1.25rem] border-dashed hover:bg-muted/50"
+                  onClick={() => navigate('/tools')}
+                >
+                  <Settings className="mr-3 h-5 w-5 text-muted-foreground" />
+                  <span className="font-semibold text-[15px]">অন্যান্য টুলস (AI)</span>
+                </Button>
                 
-                {isLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-24 rounded-2xl bg-muted/60 animate-pulse border border-white/20 shadow-sm" />
-                    ))}
-                  </div>
-                ) : curriculum ? (
-                  <div className="animate-in-fade">
-                    <CurriculumTree
-                      modules={curriculum.modules}
-                      chapters={curriculum.chapters}
-                      lessons={curriculum.lessons}
-                      completedLessonIds={completedLessonIds}
-                    />
-                  </div>
-                ) : (
-                  <div className="text-center py-12 px-6 glass-card rounded-3xl">
-                    <p className="text-muted-foreground font-medium mb-4">কোনো পাঠ্যক্রম পাওয়া যায়নি।</p>
-                    {isAdmin && (
-                      <Button variant="outline" onClick={() => navigate('/admin')} className="rounded-xl">
-                        <Shield className="mr-2 h-4 w-4" /> অ্যাডমিন প্যানেল
-                      </Button>
-                    )}
-                  </div>
+                {isAdmin && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start h-14 rounded-[1.25rem] border-dashed bg-rose-50/30 text-rose-700 hover:text-rose-800 hover:bg-rose-50"
+                    onClick={() => navigate('/admin')}
+                  >
+                    <Shield className="mr-3 h-5 w-5" />
+                    <span className="font-semibold text-[15px]">অ্যাডমিন প্যানেল</span>
+                  </Button>
                 )}
               </div>
             </div>
 
-            {/* Sidebar content (progress overview) — on desktop it's a sidebar, on mobile it's above curriculum */}
-            <div className="order-first lg:order-last space-y-6">
-              <ProgressOverview
-                curriculum={curriculum}
-                completedLessonIds={completedLessonIds}
-              />
-            </div>
           </div>
         </div>
       </div>

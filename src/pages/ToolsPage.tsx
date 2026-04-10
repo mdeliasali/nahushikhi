@@ -400,7 +400,10 @@ function SentenceParser() {
           <div className="h-10 w-10 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
             <MessageSquare className="h-5 w-5 text-amber-600" />
           </div>
-          <h2 className="text-base font-extrabold">তারকিব পার্সার</h2>
+          <div>
+            <h2 className="text-base font-extrabold">তারকিব পার্সার</h2>
+            <p className="text-[10px] text-amber-700/80 font-bold tracking-wider">বোর্ড প্রশ্নের বাক্য বিশ্লেষণ</p>
+          </div>
         </div>
         {analysisData && (
           <div className="flex bg-white/60 p-1 rounded-xl border border-black/5">

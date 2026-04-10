@@ -1,4 +1,4 @@
-import { Home, BarChart3, Settings, Shield } from 'lucide-react';
+import { Home, BookOpen, Timer, Copy, User, Shield } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -9,8 +9,10 @@ export default function BottomNav() {
 
   const navItems = [
     { icon: Home, label: 'হোম', path: '/', id: 'nav-home' },
-    { icon: BarChart3, label: 'অগ্রগতি', path: '/progress', id: 'nav-progress' },
-    { icon: Settings, label: 'অন্যান্য', path: '/tools', id: 'nav-tools' },
+    { icon: BookOpen, label: 'প্রশ্নব্যাংক', path: '/question-bank', id: 'nav-qb' },
+    { icon: Timer, label: 'মক টেস্ট', path: '/mock-test', id: 'nav-mock' },
+    { icon: Copy, label: 'রিভিশন', path: '/revision', id: 'nav-rev' },
+    { icon: User, label: 'প্রোফাইল', path: '/progress', id: 'nav-progress' },
   ];
 
   if (isAdmin) {

@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_questions: {
+        Row: {
+          id: string; year: number; board_name: string; exam_class: 'dakhil' | 'alim';
+          question_type: string; question_text: string; question_text_arabic: string | null;
+          options: string[] | null; correct_answer: string; explanation: string | null;
+          topic_tag: string | null; marks: number; is_published: boolean;
+          created_at: string; updated_at: string;
+        }
+        Insert: Partial<Database['public']['Tables']['board_questions']['Row']> & { question_text: string; correct_answer: string; year: number; board_name: string; }
+        Update: Partial<Database['public']['Tables']['board_questions']['Row']>
+        Relationships: []
+      }
+      mock_test_sessions: {
+        Row: {
+          id: string; user_id: string; exam_class: 'dakhil' | 'alim';
+          started_at: string; finished_at: string | null; duration_seconds: number | null;
+          total_questions: number; correct_count: number; wrong_count: number;
+          skipped_count: number; score_percent: number; answers: Record<string,string> | null;
+          weak_topics: string[] | null; created_at: string;
+        }
+        Insert: Partial<Database['public']['Tables']['mock_test_sessions']['Row']> & { user_id: string; total_questions: number; }
+        Update: Partial<Database['public']['Tables']['mock_test_sessions']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: "mock_test_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      revision_cards: {
+        Row: {
+          id: string; exam_class: 'dakhil' | 'alim'; topic: string; category: string;
+          front_arabic: string | null; front_bengali: string; back_definition: string;
+          back_example: string | null; back_rule: string | null; difficulty: 1 | 2 | 3;
+          sort_order: number; is_published: boolean; created_at: string;
+        }
+        Insert: Partial<Database['public']['Tables']['revision_cards']['Row']> & { topic: string; front_bengali: string; back_definition: string; category: string; }
+        Update: Partial<Database['public']['Tables']['revision_cards']['Row']>
+        Relationships: []
+      }
+      short_questions: {
+        Row: {
+          id: string; exam_class: 'dakhil' | 'alim'; chapter_id: string | null;
+          question_text: string; model_answer: string; answer_points: string[] | null;
+          importance: 1 | 2 | 3; likely_year: string | null; topic_tag: string | null;
+          is_published: boolean; created_at: string;
+        }
+        Insert: Partial<Database['public']['Tables']['short_questions']['Row']> & { question_text: string; model_answer: string; }
+        Update: Partial<Database['public']['Tables']['short_questions']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: "short_questions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       chapters: {
         Row: {
           created_at: string
@@ -181,6 +243,12 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          exam_class: "dakhil" | "alim" | null
+          target_exam_date: string | null
+          streak_count: number | null
+          last_active_date: string | null
+          total_mock_tests: number | null
+          best_mock_score: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -189,6 +257,12 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          exam_class?: "dakhil" | "alim" | null
+          target_exam_date?: string | null
+          streak_count?: number | null
+          last_active_date?: string | null
+          total_mock_tests?: number | null
+          best_mock_score?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -197,6 +271,12 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+          exam_class?: "dakhil" | "alim" | null
+          target_exam_date?: string | null
+          streak_count?: number | null
+          last_active_date?: string | null
+          total_mock_tests?: number | null
+          best_mock_score?: number | null
         }
         Relationships: []
       }
@@ -378,6 +458,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      exam_class: "dakhil" | "alim"
       lesson_type: "lesson" | "practice" | "quiz" | "review" | "tool"
       question_type:
         | "mcq"
@@ -514,6 +595,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      exam_class: ["dakhil", "alim"],
       lesson_type: ["lesson", "practice", "quiz", "review", "tool"],
       question_type: [
         "mcq",
