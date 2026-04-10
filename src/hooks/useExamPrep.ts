@@ -50,7 +50,7 @@ export function useRevisionCards(examClass?: ExamClass, category?: string) {
 }
 
 // 3. Short Questions
-export function useShortQuestions(examClass?: ExamClass, importance?: number) {
+export function useShortQuestions(examClass?: ExamClass, importance?: 1 | 2 | 3) {
   return useQuery({
     queryKey: ['short_questions', examClass, importance],
     queryFn: async () => {
@@ -95,7 +95,7 @@ export function useSaveMockTestSession() {
   const { user } = useAuth();
   
   return useMutation({
-    mutationFn: async (sessionData: Database['public']['Tables']['mock_test_sessions']['Insert']) => {
+    mutationFn: async (sessionData: Omit<Database['public']['Tables']['mock_test_sessions']['Insert'], 'user_id'>) => {
       if (!user) throw new Error("Must be logged in to save mock test session");
       
       const { data, error } = await supabase
