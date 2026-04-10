@@ -54,6 +54,7 @@ export default function Auth() {
       form.get('email') as string,
       form.get('password') as string,
       form.get('displayName') as string,
+      form.get('examClass') as string
     );
     if (error) {
       toast.error(error.message);
@@ -142,6 +143,18 @@ export default function Auth() {
                     <Input id="signup-email" name="email" type="email" required placeholder="name@example.com" 
                       className="pl-11 h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-class" className="font-bold text-xs uppercase tracking-wider ml-1">আপনার শ্রেণি (দাখিল/আলিম)</Label>
+                  <select 
+                    id="signup-class" 
+                    name="examClass" 
+                    required 
+                    className="w-full h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium px-4 appearance-none cursor-pointer"
+                  >
+                    <option value="dakhil">দাখিল পরীক্ষা (Dakhil)</option>
+                    <option value="alim">আলিম পরীক্ষা (Alim)</option>
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password" className="font-bold text-xs uppercase tracking-wider ml-1">পাসওয়ার্ড</Label>
