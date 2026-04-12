@@ -12,6 +12,9 @@ import QuizPage from "./pages/QuizPage";
 import PracticePage from "./pages/PracticePage";
 import ProgressPage from "./pages/ProgressPage";
 import ToolsPage from "./pages/ToolsPage";
+import TarkibPage from "./pages/TarkibPage";
+import MorphologyPage from "./pages/MorphologyPage";
+import VerbBuilderPage from "./pages/VerbBuilderPage";
 import RealArabicPage from "./pages/RealArabicPage";
 import SmartPracticePage from "./pages/SmartPracticePage";
 import NotFound from "./pages/NotFound";
@@ -45,6 +48,9 @@ const App = () => (
             <Route path="/smart-practice/:lessonId" element={<SmartPracticePage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/tools" element={<ToolsPage />} />
+            <Route path="/tools/tarkib" element={<TarkibPage />} />
+            <Route path="/tools/morphology" element={<MorphologyPage />} />
+            <Route path="/tools/verb-builder" element={<VerbBuilderPage />} />
             <Route path="/question-bank" element={<BoardQuestionsPage />} />
             <Route path="/mock-test" element={<MockTestPage />} />
             <Route path="/revision" element={<RevisionCardsPage />} />

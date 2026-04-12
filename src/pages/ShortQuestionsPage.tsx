@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { MessageSquareText, Search, BookOpenCheck } from "lucide-react";
+import { MessageSquareText, Search, BookOpenCheck, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw } from "lucide-react";
 import { useShortQuestions } from "@/hooks/useExamPrep";
 import { Database } from "@/integrations/supabase/types";
+import { Button } from "@/components/ui/button";
 
 type ExamClass = Database['public']['Enums']['exam_class'];
 
@@ -10,6 +11,34 @@ export default function ShortQuestionsPage() {
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   
   const { data: questions, isLoading } = useShortQuestions(selectedClass);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [writtenAnswer, setWrittenAnswer] = useState<string>('');
+  const [showResult, setShowResult] = useState(false);
+  const [isGraded, setIsGraded] = useState<'none' | 'correct' | 'wrong'>('none');
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setWrittenAnswer('');
+    setShowResult(false);
+    setIsGraded('none');
+  }, [selectedClass, questions]);
+
+  const handleSubmit = () => {
+    if (!writtenAnswer.trim()) return;
+    setShowResult(true);
+  };
+
+  const handleNext = () => {
+    if (questions && currentIndex < questions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setWrittenAnswer('');
+      setShowResult(false);
+      setIsGraded('none');
+    }
+  };
+
+  const currentQ = questions?.[currentIndex];
 
   return (
     <Layout>
@@ -23,7 +52,7 @@ export default function ShortQuestionsPage() {
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">সংক্ষিপ্ত প্রশ্নাবলি</h1>
-                <p className="text-sm text-muted-foreground font-medium mt-1">মডেল উত্তরসহ গুরুত্বপূর্ণ প্রশ্নোত্তর</p>
+                <p className="text-sm text-muted-foreground font-medium mt-1">মডেল উত্তরসহ গুরুত্বপূর্ণ প্রশ্নোত্তর ও সেল্ফ-টেস্ট</p>
               </div>
             </div>
             
@@ -43,12 +72,11 @@ export default function ShortQuestionsPage() {
           </div>
           
           {/* Content */}
-          <div className="p-6 sm:p-8 flex-1 bg-slate-50/30">
+          <div className="p-6 sm:p-8 flex-1 bg-slate-50/30 flex flex-col justify-center">
             {isLoading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-32 bg-slate-100/50 rounded-2xl animate-pulse ring-1 ring-black/5" />
-                ))}
+              <div className="space-y-4 max-w-2xl mx-auto w-full">
+                <div className="h-32 bg-slate-100/50 rounded-2xl animate-pulse ring-1 ring-black/5" />
+                <div className="h-32 bg-slate-100/50 rounded-2xl animate-pulse ring-1 ring-black/5" />
               </div>
             ) : !questions || questions.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 h-full">
@@ -60,67 +88,189 @@ export default function ShortQuestionsPage() {
                   অ্যাডমিন প্যানেল থেকে প্রশ্ন যুক্ত হলে তা এখানে প্রদর্শিত হবে।
                 </p>
               </div>
-            ) : (
-              <div className="space-y-6">
-                {questions.map((q, idx) => (
-                  <div key={q.id} className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm ring-1 ring-slate-200/60 overflow-hidden relative">
-                    {/* Importance Indicator */}
-                    {q.importance === 3 && (
-                      <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">
+            ) : currentQ ? (
+              <div className="max-w-2xl mx-auto w-full space-y-6">
+                
+                {/* Progress Indicators */}
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm font-semibold text-slate-500">
+                    প্রশ্ন {currentIndex + 1} / {questions.length}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {currentQ.likely_year && (
+                      <span className="bg-rose-100 text-rose-700 text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                        সাল: {currentQ.likely_year}
+                      </span>
+                    )}
+                    {currentQ.importance === 3 && (
+                      <span className="bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
                         অত্যন্ত গুরুত্বপূর্ণ
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-rose-500 h-full transition-all duration-300"
+                    style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                  />
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-slate-200/60 transition-all duration-300">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">
+                    {currentQ.question_text}
+                  </h3>
+                  
+                  {/* Interactive Input */}
+                  <div className="mt-8">
+                    {!showResult ? (
+                      <div className="space-y-4">
+                        <p className="text-sm text-slate-500 font-medium mb-2">আপনার উত্তর লিখুন:</p>
+                        <textarea 
+                          value={writtenAnswer}
+                          onChange={e => setWrittenAnswer(e.target.value)}
+                          placeholder="সংক্ষিপ্ত প্রশ্নের উত্তর লিখুন..."
+                          className="w-full p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-rose-100 outline-none min-h-[120px] transition-all"
+                        />
+                        <div className="mt-4 flex justify-end">
+                          <Button 
+                            size="lg" 
+                            onClick={handleSubmit} 
+                            disabled={!writtenAnswer.trim()}
+                            className="bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl px-8"
+                          >
+                            উত্তর জমা দিন
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                          <span className="font-bold text-sm text-slate-500 block mb-2">আপনার উত্তর:</span>
+                          <p className="text-slate-800 font-medium whitespace-pre-wrap">{writtenAnswer}</p>
+                        </div>
+                        
+                        <div className="bg-rose-50/30 p-4 rounded-xl border border-rose-100 flex gap-3">
+                          <BookOpenCheck className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold text-sm text-rose-700 block mb-2">মডেল উত্তর:</span>
+                            <p className="text-sm text-slate-700 font-medium whitespace-pre-wrap leading-relaxed">
+                              {currentQ.model_answer}
+                            </p>
+                            
+                            {currentQ.answer_points && Array.isArray(currentQ.answer_points) && currentQ.answer_points.length > 0 && (
+                              <ul className="mt-3 space-y-2">
+                                {currentQ.answer_points.map((point: any, i: number) => (
+                                  <li key={i} className="flex gap-2 text-sm text-slate-700">
+                                    <span className="text-rose-500 font-bold">•</span>
+                                    {point as string}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Grading flow */}
+                        {isGraded === 'none' && (
+                          <div className="mt-6 border-t pt-6 text-center animate-in-fade">
+                            <h4 className="text-lg font-bold text-slate-800 mb-4">মডেল উত্তরের সাথে মিলিয়ে আপনার উত্তর কেমন হলো?</h4>
+                            <div className="flex justify-center flex-wrap gap-4">
+                              <Button 
+                                onClick={() => setIsGraded('correct')}
+                                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                              >
+                                <CheckCircle2 className="h-5 w-5" /> সঠিক হয়েছে
+                              </Button>
+                              <Button 
+                                onClick={() => setIsGraded('wrong')}
+                                className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                              >
+                                <XCircle className="h-5 w-5" /> ভুল বা অসম্পূর্ণ
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {isGraded === 'wrong' && (
+                          <div className="mt-6 p-6 rounded-xl border bg-red-50 border-red-200 animate-in-fade">
+                            <div className="flex items-start gap-4">
+                              <div className="h-10 w-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0 mt-1">
+                                <XCircle className="h-6 w-6" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-lg font-bold mb-1 text-red-800">ভুল বা অসম্পূর্ণ উত্তর</h4>
+                                <div className="mt-2 space-y-4">
+                                  <p className="text-sm font-medium text-red-700/80 mb-2">
+                                    রিভিশন পেজ থেকে মডেল উত্তরটি ভালোভাবে জেনে নিন অথবা অধ্যায়টি পুনরায় পড়ে আবার চেষ্টা করুন।
+                                  </p>
+                                  
+                                  <div className="flex flex-col sm:flex-row gap-3">
+                                    <Button variant="outline" className="bg-white hover:bg-slate-50 border-red-200 text-red-700" onClick={() => window.open('/revision-cards', '_blank')}>
+                                      <BookMarked className="h-4 w-4 mr-2" />
+                                      রিভিশন পেজ
+                                    </Button>
+                                    <Button variant="outline" className="bg-white hover:bg-slate-50 border-red-200 text-red-700" onClick={() => window.open('/curriculum', '_blank')}>
+                                      <RotateCcw className="h-4 w-4 mr-2" />
+                                      অধ্যায়টি পুনরায় পড়ুন
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="mt-6 flex justify-end gap-3">
+                                  <Button 
+                                    onClick={() => {
+                                      setShowResult(false);
+                                      setWrittenAnswer('');
+                                      setIsGraded('none');
+                                    }}
+                                    className="bg-slate-900 hover:bg-slate-800 text-white"
+                                  >
+                                    <RefreshCcw className="h-4 w-4 mr-2" />
+                                    পুন্রায় চেষ্টা করুন
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {isGraded === 'correct' && (
+                          <div className="mt-6 p-6 rounded-xl border bg-green-50 border-green-200 animate-in-fade">
+                            <div className="flex items-start gap-4">
+                              <div className="h-10 w-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center shrink-0 mt-1">
+                                <CheckCircle2 className="h-6 w-6" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-lg font-bold mb-1 text-green-800">চমৎকার! সঠিক উত্তর।</h4>
+                                
+                                <div className="mt-6 flex justify-end gap-3">
+                                  {currentIndex < questions.length - 1 ? (
+                                    <Button 
+                                      onClick={handleNext}
+                                      className="bg-green-600 hover:bg-green-700 text-white"
+                                    >
+                                      পরবর্তি প্রশ্নে যান
+                                      <ArrowRight className="h-4 w-4 ml-2" />
+                                    </Button>
+                                  ) : (
+                                    <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-bold flex items-center">
+                                      এই সেশনের সবগুলো প্রশ্ন শেষ! 🎉
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                    
-                    <div className="flex items-start gap-3">
-                      <span className="flex-shrink-0 h-6 w-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold leading-none mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-800 leading-relaxed pr-8">
-                        {q.question_text}
-                      </h3>
-                    </div>
-                    
-                    <div className="mt-4 pl-9">
-                      <div className="bg-rose-50/30 p-4 rounded-xl border border-rose-100 flex align-top gap-3">
-                        <BookOpenCheck className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold text-sm text-rose-700 block mb-2">মডেল উত্তর:</span>
-                          <p className="text-sm text-slate-700 font-medium whitespace-pre-wrap leading-relaxed">
-                            {q.model_answer}
-                          </p>
-                          
-                          {q.answer_points && Array.isArray(q.answer_points) && q.answer_points.length > 0 && (
-                            <ul className="mt-3 space-y-2">
-                              {q.answer_points.map((point, i) => (
-                                <li key={i} className="flex gap-2 text-sm text-slate-700">
-                                  <span className="text-rose-500 font-bold">•</span>
-                                  {point as string}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {(q.likely_year || q.topic_tag) && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                          {q.likely_year && (
-                            <span className="text-xs font-semibold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
-                              বোর্ড সাল: {q.likely_year}
-                            </span>
-                          )}
-                          {q.topic_tag && (
-                            <span className="text-xs font-semibold bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">
-                              টপিক: {q.topic_tag}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
                   </div>
-                ))}
+                </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

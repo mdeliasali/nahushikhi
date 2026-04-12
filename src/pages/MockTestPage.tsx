@@ -22,6 +22,8 @@ export default function MockTestPage() {
   
   // Randomly selected questions for this session
   const [questions, setQuestions] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -43,11 +45,28 @@ export default function MockTestPage() {
     setTestFinished(false);
     setTimeLeft(30 * 60);
     setAnswers({});
+    setCurrentIndex(0);
+    setShowResult(false);
   };
 
   const handleAnswerChange = (questionId: string, answer: string) => {
-    if (!testFinished) {
+    if (!testFinished && !showResult) {
       setAnswers(prev => ({ ...prev, [questionId]: answer }));
+    }
+  };
+
+  const handleSubmitQuestion = () => {
+    const currentQ = questions[currentIndex];
+    if (!currentQ || !answers[currentQ.id]) return;
+    setShowResult(true);
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setShowResult(false);
+    } else {
+      handleFinishTest();
     }
   };
 
@@ -92,9 +111,11 @@ export default function MockTestPage() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Mock Result calculations
   const totalCorrect = questions.filter(q => answers[q.id] === q.correct_answer).length;
   const scorePercent = questions.length > 0 ? Math.round((totalCorrect / questions.length) * 100) : 0;
+
+  const currentQ = questions[currentIndex];
+  const isCorrect = currentQ && answers[currentQ.id] === currentQ.correct_answer;
 
   return (
     <Layout>
@@ -250,54 +271,153 @@ export default function MockTestPage() {
                 </div>
               </div>
             ) : (
-              // Active Test View
-              <div className="space-y-8">
-                {questions.map((q, idx) => (
-                  <div key={q.id} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 scroll-mt-24" id={`q-${idx}`}>
-                    <div className="flex items-start gap-3 mb-6">
-                      <span className="flex-shrink-0 bg-indigo-100 text-indigo-700 h-8 w-8 rounded-full flex items-center justify-center font-bold">
-                        {idx + 1}
-                      </span>
-                      <h3 className="text-lg sm:text-xl font-bold text-slate-800 mt-1 leading-snug">
-                        {q.question_text}
+              // Active Test View - One Question at a Time with Learning Loop
+              <div className="max-w-2xl mx-auto w-full space-y-6">
+                {currentQ && (
+                  <>
+                    {/* Progress Indicators */}
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-sm font-semibold text-slate-500">
+                        প্রশ্ন {currentIndex + 1} / {questions.length}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-indigo-100 text-indigo-700 text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                          {currentQ.board_name} {currentQ.year}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-indigo-500 h-full transition-all duration-300"
+                        style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                      />
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 transition-all duration-300">
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">
+                        {currentQ.question_text}
                       </h3>
-                    </div>
-                    
-                    {q.question_text_arabic && (
-                      <p className="text-right text-2xl font-arabic text-slate-700 mt-2 mb-6 leading-loose pl-11" dir="rtl">
-                        {q.question_text_arabic}
-                      </p>
-                    )}
-                    
-                    <div className="pl-0 sm:pl-11 grid grid-cols-1 gap-3">
-                      {q.options?.map((opt: string, i: number) => {
-                        const isSelected = answers[q.id] === opt;
-                        return (
-                          <div 
-                            key={i} 
-                            onClick={() => handleAnswerChange(q.id, opt)}
-                            className={`p-4 sm:p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
-                              isSelected 
-                                ? 'border-indigo-500 bg-indigo-50/50 text-indigo-900 shadow-sm' 
-                                : 'border-slate-100 hover:border-indigo-200 hover:bg-slate-50'
-                            }`}
+                      
+                      {currentQ.question_text_arabic && (
+                        <p className="text-right text-2xl font-arabic text-slate-700 mt-5 leading-[2.5] bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-inner" dir="rtl">
+                          {currentQ.question_text_arabic}
+                        </p>
+                      )}
+                      
+                      <div className="mt-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+                          {currentQ.options?.map((opt: string, i: number) => {
+                            const isSelected = answers[currentQ.id] === opt;
+                            const isCorrectOpt = showResult && opt === currentQ.correct_answer;
+                            const isWrongOpt = showResult && isSelected && !isCorrect;
+                            
+                            let btnClass = "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50";
+                            if (isSelected && !showResult) btnClass = "border-indigo-500 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-500 shadow-sm";
+                            if (isCorrectOpt) btnClass = "border-green-500 bg-green-50 text-green-800 ring-1 ring-green-500 shadow-sm";
+                            if (isWrongOpt) btnClass = "border-red-500 bg-red-50 text-red-800 ring-1 ring-red-500 shadow-sm";
+
+                            return (
+                              <button 
+                                key={i} 
+                                onClick={() => handleAnswerChange(currentQ.id, opt)}
+                                disabled={showResult}
+                                className={`p-4 rounded-xl border text-left font-medium transition-all duration-200 ${btnClass}`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`flex items-center justify-center h-6 w-6 rounded-full text-xs shrink-0 ${isSelected && !showResult ? 'bg-indigo-500 text-white' : isCorrectOpt ? 'bg-green-500 text-white' : isWrongOpt ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                                    {String.fromCharCode(2534 + i)}
+                                  </div>
+                                  <span className={isCorrectOpt ? "font-bold" : ""}>{opt}</span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      
+                      {!showResult && (
+                        <div className="mt-8 flex justify-end">
+                          <Button 
+                            size="lg" 
+                            onClick={handleSubmitQuestion} 
+                            disabled={!answers[currentQ.id]}
+                            className="bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl px-8"
                           >
-                            <div className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
-                              {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-indigo-500" />}
+                            উত্তর জমা দিন
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Flow Feedback */}
+                      {showResult && (
+                        <div className={`mt-8 p-6 rounded-xl border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} animate-in-fade`}>
+                          <div className="flex items-start gap-4">
+                            {isCorrect ? (
+                              <div className="h-10 w-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center shrink-0 mt-1">
+                                <CheckCircle className="h-6 w-6" />
+                              </div>
+                            ) : (
+                              <div className="h-10 w-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0 mt-1">
+                                <AlertCircle className="h-6 w-6" />
+                              </div>
+                            )}
+                            
+                            <div className="flex-1">
+                              <h4 className={`text-lg font-bold mb-1 ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                                {isCorrect ? 'সঠিক উত্তর!' : 'ভুল উত্তর!'}
+                              </h4>
+                              
+                              {!isCorrect && (
+                                <div className="mt-2 space-y-4">
+                                  <p className="text-sm font-medium text-red-700/80 mb-2">
+                                    রিভিশন পেজ থেকে এই প্রশ্নের উত্তরটি ভালোভাবে জেনে নিন অথবা অধ্যায়টি পুনরায় পড়ে আবার চেষ্টা করুন।
+                                  </p>
+                                  
+                                  <div className="flex flex-col sm:flex-row gap-3">
+                                    <Button variant="outline" className="bg-white hover:bg-slate-50 border-red-200 text-red-700" onClick={() => window.open('/revision-cards', '_blank')}>
+                                      রিভিশন পেজ
+                                    </Button>
+                                    <Button variant="outline" className="bg-white hover:bg-slate-50 border-red-200 text-red-700" onClick={() => window.open('/curriculum', '_blank')}>
+                                      অধ্যায়টি পুনরায় পড়ুন
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              <div className="mt-6 flex justify-end gap-3">
+                                {isCorrect ? (
+                                  <Button 
+                                    onClick={handleNext}
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                  >
+                                    {currentIndex < questions.length - 1 ? 'পরবর্তি প্রশ্নে যান' : 'পরীক্ষা শেষ করুন'}
+                                  </Button>
+                                ) : (
+                                  <Button 
+                                    onClick={() => {
+                                      setShowResult(false);
+                                      setAnswers(prev => {
+                                        const next = { ...prev };
+                                        delete next[currentQ.id];
+                                        return next;
+                                      });
+                                    }}
+                                    className="bg-slate-900 hover:bg-slate-800 text-white"
+                                  >
+                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    পুনরায় চেষ্টা করুন
+                                  </Button>
+                                )}
+                              </div>
                             </div>
-                            <span className="font-medium text-[15px]">{opt}</span>
                           </div>
-                        );
-                      })}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
-                
-                <div className="flex justify-center pt-8 pb-10">
-                  <Button onClick={handleFinishTest} size="lg" className="h-14 px-10 text-lg rounded-full bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20">
-                    পরীক্ষা শেষ করুন
-                  </Button>
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>
