@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import Layout from '@/components/Layout';
 import { useMockTestSessions } from '@/hooks/useExamPrep';
 import { Trophy, Target, History, BookOpen, AlertCircle, TrendingUp, BarChart3, User } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Navigate } from 'react-router-dom';
 
 export default function ProgressPage() {
   const { user, loading: authLoading } = useAuth();
+  const { data: profile } = useUserProfile();
   const { data: sessions, isLoading: sessionsLoading } = useMockTestSessions();
 
   if (authLoading) {
@@ -70,7 +72,7 @@ export default function ProgressPage() {
               {user.user_metadata?.full_name || user.email?.split('@')[0] || "শিক্ষার্থী"}
             </h1>
             <p className="text-indigo-100 font-medium opacity-90 flex items-center justify-center sm:justify-start gap-1">
-              <BookOpen className="w-4 h-4" /> দাখিল পরীক্ষার্থী
+              <BookOpen className="w-4 h-4" /> {profile?.exam_class === 'alim' ? 'আলিম' : 'দাখিল'} পরীক্ষার্থী
             </p>
           </div>
         </div>

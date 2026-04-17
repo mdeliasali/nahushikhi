@@ -1,16 +1,36 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { BookOpen, LogOut, User, Target, Shield, Settings, Timer, ListChecks, Copy } from 'lucide-react';
+import { BookOpen, LogOut, User, Target, Shield, Settings, Timer, ListChecks, Copy, AlertCircle } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Progress } from "@/components/ui/progress";
+import { useUserProfile, getDaysUntilExam } from '@/hooks/useUserProfile';
+import { useMockTestSessions } from '@/hooks/useExamPrep';
 
 export default function Index() {
   const { user, isAdmin, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { data: profile } = useUserProfile();
+  const { data: sessions } = useMockTestSessions();
 
-  // Temporary mock data for the dashboard until we hook it to Supabase
-  const todaysGoal = { total: 50, completed: 15, currentStreak: 3 };
+  const daysLeft = getDaysUntilExam(profile?.target_exam_date);
+
+  const allWeakTopics = sessions?.flatMap(s => s.weak_topics || []) || [];
+  const topicCounts = allWeakTopics.reduce((acc, topic) => {
+    acc[topic] = (acc[topic] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const weakTopics = Object.entries(topicCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(entry => entry[0]);
+
+  const totalTests = sessions?.length || 0;
+  const todaysGoal = {
+    total: 10,
+    completed: Math.min(10, totalTests),
+    currentStreak: profile?.streak_count || 0,
+  };
   
   if (authLoading) {
     return (
@@ -70,6 +90,25 @@ export default function Index() {
                 <p className="text-sm sm:text-base opacity-90 mt-1">আপনার দাখিল/আলিম পরীক্ষার প্রস্তুতি শুরু করুন।</p>
               </div>
               
+              {daysLeft !== null && (
+                <div className="bg-white/15 rounded-2xl px-4 py-3 flex items-center justify-between border border-white/20 max-w-xs">
+                  <div>
+                    <div className="text-3xl font-black">{daysLeft}</div>
+                    <div className="text-xs opacity-80 font-medium">দিন বাকি</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold">
+                      {profile?.exam_class === 'alim' ? 'আলিম' : 'দাখিল'} পরীক্ষা
+                    </div>
+                    <div className="text-xs opacity-70">
+                      {profile?.target_exam_date
+                        ? new Date(profile.target_exam_date).toLocaleDateString('bn-BD', { month: 'long', year: 'numeric' })
+                        : ''}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-white/10 rounded-2xl p-4 sm:p-5 backdrop-blur-sm border border-white/20 max-w-md mt-2">
                 <div className="flex items-center justify-between mb-3 text-sm font-semibold">
                   <div className="flex items-center gap-2">
@@ -147,6 +186,27 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+              
+              {weakTopics.length > 0 && (
+                <div className="space-y-3 mt-8">
+                  <h2 className="text-lg font-extrabold tracking-tight flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-destructive" />
+                    দুর্বল টপিক
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {weakTopics.map((topic) => (
+                      <div
+                        key={topic}
+                        onClick={() => navigate(`/question-bank`)}
+                        className="glass-card p-4 rounded-2xl border border-red-100 cursor-pointer hover:bg-red-50/50 transition-colors"
+                      >
+                        <div className="text-sm font-bold text-gray-900 truncate">{topic}</div>
+                        <div className="text-xs text-red-500 font-medium mt-1">অনুশীলন প্রয়োজন →</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Side Shortcuts */}

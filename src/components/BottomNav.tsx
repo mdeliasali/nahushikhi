@@ -1,4 +1,4 @@
-import { Home, BookOpen, Timer, Copy, User, Shield } from 'lucide-react';
+import { Home, BookOpen, Timer, Copy, User, Shield, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -11,7 +11,7 @@ export default function BottomNav() {
     { icon: Home, label: 'হোম', path: '/', id: 'nav-home' },
     { icon: BookOpen, label: 'প্রশ্নব্যাংক', path: '/question-bank', id: 'nav-qb' },
     { icon: Timer, label: 'মক টেস্ট', path: '/mock-test', id: 'nav-mock' },
-    { icon: Copy, label: 'রিভিশন', path: '/revision', id: 'nav-rev' },
+    { icon: Sparkles, label: 'তারকিব', path: '/tools/tarkib', id: 'nav-tools' },
     { icon: User, label: 'প্রোফাইল', path: '/progress', id: 'nav-progress' },
   ];
 

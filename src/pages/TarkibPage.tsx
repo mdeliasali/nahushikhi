@@ -173,10 +173,33 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
 
 export default function TarkibPage() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'tarkib' | 'tahkik'>('tarkib');
+  const [tahkikInput, setTahkikInput] = useState('');
+  const [tahkikResult, setTahkikResult] = useState<string | null>(null);
+  const [tahkikLoading, setTahkikLoading] = useState(false);
   const [sentence, setSentence] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysisData, setAnalysisData] = useState<TarkibNode[] | null>(null);
   const [scale, setScale] = useState(1);
+
+  const handleTahkik = async () => {
+    if (!tahkikInput.trim()) return;
+    setTahkikLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-sentence', {
+        body: {
+          sentence: tahkikInput,
+          action: 'tahkik',
+        },
+      });
+      if (error) throw error;
+      setTahkikResult(data?.analysis || data?.text || JSON.stringify(data));
+    } catch (err) {
+      toast.error('বিশ্লেষণে সমস্যা হয়েছে');
+    } finally {
+      setTahkikLoading(false);
+    }
+  };
 
   const analyzeSentence = async () => {
     if (!sentence) return;
@@ -244,7 +267,28 @@ export default function TarkibPage() {
         </header>
 
         <main className="flex-1 flex flex-col p-4 md:p-6 gap-6 overflow-hidden">
-          <div className="w-full max-w-4xl mx-auto flex gap-3">
+          <div className="flex gap-2 p-1 bg-secondary/30 rounded-2xl w-fit">
+            <button
+              onClick={() => setActiveTab('tarkib')}
+              className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${
+                activeTab === 'tarkib' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              তারকিব বিশ্লেষণ
+            </button>
+            <button
+              onClick={() => setActiveTab('tahkik')}
+              className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${
+                activeTab === 'tahkik' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              তাহকিক (শব্দ)
+            </button>
+          </div>
+
+          {activeTab === 'tarkib' && (
+            <>
+              <div className="w-full max-w-4xl mx-auto flex gap-3">
             <Input 
               value={sentence} 
               onChange={e => setSentence(e.target.value)} 
@@ -293,6 +337,43 @@ export default function TarkibPage() {
               </div>
             )}
           </div>
+            </>
+          )}
+
+          {activeTab === 'tahkik' && (
+            <div className="glass-card rounded-[2rem] p-6 space-y-4">
+              <div>
+                <h2 className="text-lg font-black">তাহকিক — শব্দ বিশ্লেষণ</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  যেকোনো আরবি শব্দের মূল (জযর), ওজন, ইরাব ও অর্থ বিশ্লেষণ করো
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Input
+                  value={tahkikInput}
+                  onChange={e => setTahkikInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleTahkik()}
+                  placeholder="আরবি শব্দ লেখো... যেমন: الْمُجْتَهِدُ"
+                  className="text-right font-serif text-lg h-12 rounded-2xl flex-1"
+                  dir="rtl"
+                />
+                <Button
+                  onClick={handleTahkik}
+                  disabled={tahkikLoading || !tahkikInput.trim()}
+                  className="h-12 px-6 rounded-2xl font-bold"
+                >
+                  {tahkikLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : 'বিশ্লেষণ'}
+                </Button>
+              </div>
+              {tahkikResult && (
+                <div className="bg-secondary/30 rounded-2xl p-4 text-sm leading-relaxed whitespace-pre-wrap font-medium">
+                  {tahkikResult}
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
     </Layout>

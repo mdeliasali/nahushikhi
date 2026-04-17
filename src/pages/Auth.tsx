@@ -50,7 +50,7 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     const form = new FormData(e.currentTarget);
-    const { error } = await signUp(
+    const { error, needsOnboarding } = await signUp(
       form.get('email') as string,
       form.get('password') as string,
       form.get('displayName') as string,
@@ -59,7 +59,8 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success('অ্যাকাউন্ট তৈরি হয়েছে! ইমেইল যাচাই করুন।');
+      toast.success('অ্যাকাউন্ট তৈরি হয়েছে!');
+      if (needsOnboarding) navigate('/onboarding');
     }
     setLoading(false);
   };
