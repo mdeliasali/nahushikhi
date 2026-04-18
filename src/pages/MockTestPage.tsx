@@ -33,6 +33,7 @@ export default function MockTestPage() {
       handleFinishTest();
     }
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [testStarted, testFinished, timeLeft]);
 
   const handleStartTest = () => {
@@ -288,12 +289,11 @@ export default function MockTestPage() {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-indigo-500 h-full transition-all duration-300"
-                        style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-                      />
-                    </div>
+                    <Progress 
+                      value={((currentIndex + 1) / (questions?.length || 1)) * 100} 
+                      className="h-1.5 bg-slate-100" 
+                    />
+
 
                     <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 transition-all duration-300">
                       <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">

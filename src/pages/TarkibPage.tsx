@@ -54,7 +54,7 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
       });
     }
     return pos;
-  }, [nodes, svgWidth]);
+  }, [nodes, svgWidth, maxLevel]);
 
   // Helper for orthogonal path with rounded corners
   const getOrthogonalPath = (x1: number, y1: number, x2: number, y2: number) => {

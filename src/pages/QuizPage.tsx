@@ -57,6 +57,7 @@ export default function QuizPage() {
 
       generateAIQuestions(quizQs, chapterTitle);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbQuestions, chapterTitle]);
 
   const generateAIQuestions = async (adminQs: QuizQuestion[], cTitle: string) => {

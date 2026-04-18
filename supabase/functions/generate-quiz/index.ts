@@ -1,3 +1,4 @@
+// @ts-nocheck — This file runs on Supabase's Deno Edge Runtime, not the local TypeScript compiler.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {

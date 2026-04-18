@@ -43,7 +43,7 @@ export default function CurriculumTree({ modules, chapters, lessons, completedLe
   const toggleModule = (id: string) => {
     setExpandedModules(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
   };
@@ -51,7 +51,7 @@ export default function CurriculumTree({ modules, chapters, lessons, completedLe
   const toggleChapter = (id: string) => {
     setExpandedChapters(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
   };
