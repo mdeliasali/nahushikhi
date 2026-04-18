@@ -4,6 +4,8 @@
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
     "paths": {
       "@/*": [
         "./src/*"
@@ -20,5 +22,7 @@
     {
       "path": "./tsconfig.node.json"
     }
+
+
   ]
-}
+}
