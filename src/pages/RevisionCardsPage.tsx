@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Copy, Layers, ChevronRight, ChevronLeft, ArrowLeft } from "lucide-react";
+import { Copy, Layers, ChevronRight, ChevronLeft } from "lucide-react";
 import { useRevisionCards } from "@/hooks/useExamPrep";
 import { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/PageHeader";
 
 type ExamClass = Database['public']['Enums']['exam_class'];
 
 export default function RevisionCardsPage() {
-  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -34,39 +33,29 @@ export default function RevisionCardsPage() {
     <Layout>
       <div className="container max-w-4xl mx-auto px-4 py-8 animate-in-fade pb-20">
         <div className="glass-card rounded-[2rem] overflow-hidden shadow-card ring-1 ring-black/5 flex flex-col min-h-[80vh]">
-          {/* Header */}
-          <div className="p-6 sm:p-8 bg-amber-50/50 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-amber-100 shrink-0" onClick={() => navigate('/')}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div className="h-12 w-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
-                <Copy className="h-6 w-6 text-amber-600" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">রিভিশন কার্ড</h1>
-                <p className="text-sm text-muted-foreground font-medium mt-1">ফ্ল্যাশকার্ড স্টাইলে দ্রুত রিভিশন</p>
-              </div>
-            </div>
-            
-            {/* Filters */}
-            <div className="flex items-center gap-2">
-              <select 
-                className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-amber-100 outline-none"
-                value={selectedClass}
-                title="শ্রেণি নির্বাচন করুন"
-                aria-label="শ্রেণি নির্বাচন করুন"
-                onChange={(e) => {
-                  setSelectedClass(e.target.value as ExamClass);
-                  setCurrentIndex(0);
-                  setIsFlipped(false);
-                }}
-              >
-                <option value="dakhil">দাখিল</option>
-                <option value="alim">আলিম</option>
-              </select>
-            </div>
-          </div>
+          <PageHeader
+            title="রিভিশন কার্ড"
+            subtitle="ফ্ল্যাশকার্ড স্টাইলে দ্রুত রিভিশন"
+            icon={Copy}
+            iconBgColor="bg-amber-100"
+            iconColor="text-amber-600"
+            className="bg-amber-50/50"
+          >
+            <select 
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-amber-100 outline-none cursor-pointer"
+              value={selectedClass}
+              title="শ্রেণি নির্বাচন করুন"
+              aria-label="শ্রেণি নির্বাচন করুন"
+              onChange={(e) => {
+                setSelectedClass(e.target.value as ExamClass);
+                setCurrentIndex(0);
+                setIsFlipped(false);
+              }}
+            >
+              <option value="dakhil">দাখিল</option>
+              <option value="alim">আলিম</option>
+            </select>
+          </PageHeader>
           
           {/* Content */}
           <div className="p-6 sm:p-8 flex-1 bg-slate-50/30 flex flex-col relative items-center justify-center">

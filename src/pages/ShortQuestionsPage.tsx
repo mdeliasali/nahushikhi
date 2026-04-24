@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { MessageSquareText, Search, BookOpenCheck, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw, ArrowLeft } from "lucide-react";
+import { MessageSquareText, Search, BookOpenCheck, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw } from "lucide-react";
 import { useShortQuestions } from "@/hooks/useExamPrep";
 import { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-
+import PageHeader from "@/components/PageHeader";
 
 type ExamClass = Database['public']['Enums']['exam_class'];
 
 export default function ShortQuestionsPage() {
-  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   
   const { data: questions, isLoading } = useShortQuestions(selectedClass);
@@ -48,35 +46,25 @@ export default function ShortQuestionsPage() {
     <Layout>
       <div className="container max-w-4xl mx-auto px-4 py-8 animate-in-fade pb-20">
         <div className="glass-card rounded-[2rem] overflow-hidden shadow-card ring-1 ring-black/5 flex flex-col min-h-[80vh]">
-          {/* Header */}
-          <div className="p-6 sm:p-8 bg-rose-50/50 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-rose-100 shrink-0" onClick={() => navigate('/')}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div className="h-12 w-12 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0">
-                <MessageSquareText className="h-6 w-6 text-rose-600" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">সংক্ষিপ্ত প্রশ্নাবলি</h1>
-                <p className="text-sm text-muted-foreground font-medium mt-1">মডেল উত্তরসহ গুরুত্বপূর্ণ প্রশ্নোত্তর ও সেল্ফ-টেস্ট</p>
-              </div>
-            </div>
-            
-            {/* Filters */}
-            <div className="flex items-center gap-2">
-              <select 
-                className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-rose-100 outline-none"
-                value={selectedClass}
-                title="শ্রেণি নির্বাচন করুন"
-                aria-label="শ্রেণি নির্বাচন করুন"
-                onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
-              >
-                <option value="dakhil">দাখিল</option>
-                <option value="alim">আলিম</option>
-              </select>
-            </div>
-          </div>
+          <PageHeader
+            title="সংক্ষিপ্ত প্রশ্নাবলি"
+            subtitle="মডেল উত্তরসহ গুরুত্বপূর্ণ প্রশ্নোত্তর ও সেল্ফ-টেস্ট"
+            icon={MessageSquareText}
+            iconBgColor="bg-rose-100"
+            iconColor="text-rose-600"
+            className="bg-rose-50/50"
+          >
+            <select 
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-rose-100 outline-none cursor-pointer"
+              value={selectedClass}
+              title="শ্রেণি নির্বাচন করুন"
+              aria-label="শ্রেণি নির্বাচন করুন"
+              onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
+            >
+              <option value="dakhil">দাখিল</option>
+              <option value="alim">আলিম</option>
+            </select>
+          </PageHeader>
           
           {/* Content */}
           <div className="p-6 sm:p-8 flex-1 bg-slate-50/30 flex flex-col justify-center">

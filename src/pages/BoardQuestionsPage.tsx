@@ -1,17 +1,15 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import Layout from "@/components/Layout";
-import { BookOpen, Search, Info, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw, ArrowLeft } from "lucide-react";
+import { BookOpen, Search, Info, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw } from "lucide-react";
 import { useBoardQuestions } from "@/hooks/useExamPrep";
 import { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-
+import PageHeader from "@/components/PageHeader";
 
 type ExamClass = Database['public']['Enums']['exam_class'];
 
 export default function BoardQuestionsPage() {
-  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   const [selectedYear, setSelectedYear] = useState<number | undefined>();
   
@@ -23,8 +21,10 @@ export default function BoardQuestionsPage() {
   const [showResult, setShowResult] = useState(false);
 
   // Derive unique years for the filter from 2010 to current year
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 2009 }, (_, i) => currentYear - i);
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: currentYear - 2009 }, (_, i) => currentYear - i);
+  }, []);
 
   // Reset state when class or year filter changes
   useEffect(() => {
@@ -55,8 +55,6 @@ export default function BoardQuestionsPage() {
 
   const currentQ = questions?.[currentIndex];
   
-  // Decide correctness. For MCQ it's strict equality. For written, we might just do a basic string match, 
-  // but usually written answers need ai-grading or self-grading. For now, exact match or substring.
   const isCorrect = currentQ && (
     (selectedOption && selectedOption === currentQ.correct_answer) ||
     (writtenAnswer && writtenAnswer.trim().toLowerCase() === currentQ.correct_answer?.trim().toLowerCase()) ||
@@ -67,48 +65,38 @@ export default function BoardQuestionsPage() {
     <Layout>
       <div className="container max-w-4xl mx-auto px-4 py-8 animate-in-fade pb-20">
         <div className="glass-card rounded-[2rem] overflow-hidden shadow-card ring-1 ring-black/5 flex flex-col min-h-[80vh]">
-          {/* Header */}
-          <div className="p-6 sm:p-8 bg-blue-50/50 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-100 shrink-0" onClick={() => navigate('/')}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center shrink-0">
-                <BookOpen className="h-6 w-6 text-blue-600" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">বোর্ড প্রশ্নাবলি</h1>
-                <p className="text-sm text-muted-foreground font-medium mt-1">ইন্টারেক্টিভ বোর্ড প্রশ্ন সমাধান ও রিভিশন</p>
-              </div>
-            </div>
+          <PageHeader
+            title="বোর্ড প্রশ্নাবলি"
+            subtitle="ইন্টারেক্টিভ বোর্ড প্রশ্ন সমাধান ও রিভিশন"
+            icon={BookOpen}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            className="bg-blue-50/50"
+          >
+            <select 
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
+              title="শ্রেণি নির্বাচন করুন"
+              aria-label="শ্রেণি নির্বাচন করুন"
+            >
+              <option value="dakhil">দাখিল</option>
+              <option value="alim">আলিম</option>
+            </select>
             
-            {/* Filters */}
-            <div className="flex items-center gap-2">
-              <select 
-                className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none"
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
-                title="শ্রেণি নির্বাচন করুন"
-                aria-label="শ্রেণি নির্বাচন করুন"
-              >
-                <option value="dakhil">দাখিল</option>
-                <option value="alim">আলিম</option>
-              </select>
-              
-              <select 
-                className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none"
-                value={selectedYear || ""}
-                onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : undefined)}
-                title="সাল নির্বাচন করুন"
-                aria-label="সাল নির্বাচন করুন"
-              >
-                <option value="">সকল সাল</option>
-                {years.map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+            <select 
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+              value={selectedYear || ""}
+              onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : undefined)}
+              title="সাল নির্বাচন করুন"
+              aria-label="সাল নির্বাচন করুন"
+            >
+              <option value="">সকল সাল</option>
+              {years.map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </PageHeader>
           
           {/* Content */}
           <div className="p-6 sm:p-8 flex-1 bg-slate-50/30 flex flex-col justify-center">
