@@ -117,6 +117,8 @@ export default function ProgressPage() {
               <button 
                 onClick={() => setIsEditOpen(true)}
                 className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                aria-label="প্রোফাইল এডিট করুন"
+                title="প্রোফাইল এডিট করুন"
               >
                 <Edit2 className="w-4 h-4 text-white" />
               </button>
