@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { BookOpen, Search, Info, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw } from "lucide-react";
+import { BookOpen, Search, Info, CheckCircle2, XCircle, ArrowRight, BookMarked, RotateCcw, RefreshCcw, ArrowLeft } from "lucide-react";
 import { useBoardQuestions } from "@/hooks/useExamPrep";
 import { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 type ExamClass = Database['public']['Enums']['exam_class'];
 
 export default function BoardQuestionsPage() {
+  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   const [selectedYear, setSelectedYear] = useState<number | undefined>();
   
@@ -68,6 +70,9 @@ export default function BoardQuestionsPage() {
           {/* Header */}
           <div className="p-6 sm:p-8 bg-blue-50/50 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-100 shrink-0" onClick={() => navigate('/')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
               <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center shrink-0">
                 <BookOpen className="h-6 w-6 text-blue-600" />
               </div>

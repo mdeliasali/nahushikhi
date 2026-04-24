@@ -19,15 +19,15 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
   const maxLevel = Math.max(0, ...nodes.map(n => n.level || 0));
   const wordNodes = nodes.filter(n => (n.level || 0) === 0);
   
-  // PDF-like compact layout
-  const COL_W = 110;
-  const ROW_H = 100;
-  const PADDING_X = 60;
+  // PDF-like layout dimensions
+  const COL_W = 160;
+  const ROW_H = 130;
+  const PADDING_X = 100;
   const PADDING_Y = 80;
   
   const totalLeafs = wordNodes.length;
-  const svgWidth = Math.max(400, (totalLeafs * COL_W) + (PADDING_X * 2));
-  const svgHeight = (maxLevel * ROW_H) + PADDING_Y * 2 + 50;
+  const svgWidth = Math.max(800, (totalLeafs * COL_W) + (PADDING_X * 2));
+  const svgHeight = (maxLevel * ROW_H) + PADDING_Y * 2 + 80;
 
   const layout = useMemo(() => {
     const pos: Record<string, { x: number; y: number }> = {};
@@ -61,7 +61,7 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
     if (Math.abs(x1 - x2) < 5) return `M ${x1} ${y1} L ${x2} ${y2}`;
     
     const midY = y1 + (y2 - y1) / 2;
-    const radius = Math.min(8, Math.abs(x1 - x2) / 2, Math.abs(y1 - midY));
+    const radius = Math.min(12, Math.abs(x1 - x2) / 2, Math.abs(y1 - midY));
     
     const dirX = x2 > x1 ? 1 : -1;
     const dirY1 = midY > y1 ? 1 : -1;
@@ -78,18 +78,19 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
   };
 
   return (
-    <div className="absolute inset-0 overflow-auto custom-scrollbar flex bg-white">
-      <div className="min-w-max min-h-full flex flex-col items-center justify-start p-4 md:p-12 mx-auto">
-        <div className="bg-white p-6 md:p-10">
+    <div className="absolute inset-0 overflow-auto custom-scrollbar flex bg-slate-50/50">
+      <div className="min-w-max min-h-full flex flex-col items-center justify-start p-8 md:p-16 mx-auto">
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 md:p-12 relative">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] rounded-3xl" />
           <svg 
             width={svgWidth * scale} 
             height={svgHeight * scale} 
             viewBox={`0 0 ${svgWidth} ${svgHeight}`} 
-            className="overflow-visible [text-rendering:geometricPrecision]"
+            className="overflow-visible relative z-10 [text-rendering:geometricPrecision]"
           >
             <defs>
-              <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-                <path d="M 0 0 L 8 3 L 0 6 Z" fill="#111827" />
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
               </marker>
             </defs>
 
@@ -104,19 +105,14 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
                   if (!childPos || !childNode) return null;
 
                   const isChildWord = (childNode.level || 0) === 0;
-                  // Start line right below the complete text block
-                  // Top level words have their Arabic text, PLUS their role text 35px below it.
-                  const startY = isChildWord ? childPos.y + 45 : childPos.y + 10; 
-                  // End line exactly atop the parent text
-                  const endY = parentPos.y - 15; 
+                  const startY = isChildWord ? childPos.y + 65 : childPos.y + 35; 
+                  const endY = parentPos.y - 30; 
                   
-                  // Spread children connection points horizontally across the parent box to prevent lines from crossing
                   const total = node.children.length;
                   let targetX = parentPos.x;
                   if (total > 1) {
-                     const spread = Math.min(80, total * 30); 
+                     const spread = Math.min(120, total * 40); 
                      const step = spread / (total - 1);
-                     // Arabic is RTL, so idx 0 (first child) attaches to the right (+offset), idx 1 to the left (-offset)
                      targetX = parentPos.x + (spread / 2) - (idx * step);
                   }
 
@@ -127,10 +123,12 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
                       key={`path-${node.id}-${childId}`}
                       d={path}
                       fill="none"
-                      strokeWidth="1.5"
-                      stroke="#111827"
+                      strokeWidth="2"
+                      stroke="#94a3b8"
                       markerEnd="url(#arrowhead)"
                       strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-all duration-300"
                     />
                   );
                });
@@ -144,23 +142,26 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
 
                return (
                  <g key={node.id}>
-                    {isWord && (
-                      <text
-                        x={p.x} y={p.y}
-                        textAnchor="middle"
-                        className="fill-[#111827] text-4xl font-bold font-arabic"
-                      >
-                        {node.text}
-                      </text>
+                    {isWord ? (
+                      <foreignObject x={p.x - 80} y={p.y - 40} width={160} height={120}>
+                        <div className="flex flex-col items-center justify-center w-full h-full text-center">
+                          <span className="text-4xl font-bold font-arabic text-slate-800 leading-tight drop-shadow-sm">{node.text}</span>
+                          {node.role && (
+                            <span className="text-sm font-bold font-arabic text-amber-700 mt-3 bg-amber-100/80 px-4 py-1.5 rounded-full border border-amber-300/50 shadow-sm backdrop-blur-sm">
+                              {node.role}
+                            </span>
+                          )}
+                        </div>
+                      </foreignObject>
+                    ) : (
+                      <foreignObject x={p.x - 120} y={p.y - 30} width={240} height={60}>
+                        <div className="flex items-center justify-center w-full h-full">
+                          <span className="text-[16px] font-bold font-arabic text-emerald-800 bg-emerald-50 border-2 border-emerald-200/60 px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
+                            {node.role}
+                          </span>
+                        </div>
+                      </foreignObject>
                     )}
-                    
-                    <text
-                      x={p.x} y={isWord ? p.y + 35 : p.y}
-                      textAnchor="middle"
-                      className="fill-[#111827] text-[15px] font-semibold font-arabic tracking-wide"
-                    >
-                      {node.role}
-                    </text>
                  </g>
                );
             })}
@@ -235,7 +236,7 @@ export default function TarkibPage() {
       <div className="h-screen flex flex-col bg-[#FDFCFB]">
         <header className="px-6 h-20 border-b border-black/5 flex items-center justify-between glass-morphism sticky top-0 z-50">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate('/tools')}>
+            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate('/')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>

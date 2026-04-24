@@ -1,15 +1,57 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import Layout from '@/components/Layout';
 import { useMockTestSessions } from '@/hooks/useExamPrep';
-import { Trophy, Target, History, BookOpen, AlertCircle, TrendingUp, BarChart3, User } from 'lucide-react';
+import { Trophy, Target, History, BookOpen, AlertCircle, TrendingUp, BarChart3, User, Edit2, Loader2 } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Navigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 
 export default function ProgressPage() {
   const { user, loading: authLoading } = useAuth();
   const { data: profile } = useUserProfile();
   const { data: sessions, isLoading: sessionsLoading } = useMockTestSessions();
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editClass, setEditClass] = useState<'dakhil' | 'alim'>('dakhil');
+  const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (profile) {
+      setEditName(profile.display_name || user?.user_metadata?.full_name || '');
+      setEditClass(profile.exam_class || 'dakhil');
+    }
+  }, [profile, user, isEditOpen]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ display_name: editName, exam_class: editClass })
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      toast.success('প্রোফাইল সফলভাবে আপডেট হয়েছে!');
+      queryClient.invalidateQueries({ queryKey: ['user_profile', user.id] });
+      setIsEditOpen(false);
+    } catch (e: any) {
+      toast.error(e.message || 'আপডেট করতে সমস্যা হয়েছে');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (authLoading) {
     return (
@@ -68,9 +110,17 @@ export default function ProgressPage() {
             )}
           </div>
           <div className="text-center sm:text-left z-10">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1">
-              {user.user_metadata?.full_name || user.email?.split('@')[0] || "শিক্ষার্থী"}
-            </h1>
+            <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                {profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || "শিক্ষার্থী"}
+              </h1>
+              <button 
+                onClick={() => setIsEditOpen(true)}
+                className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+              >
+                <Edit2 className="w-4 h-4 text-white" />
+              </button>
+            </div>
             <p className="text-indigo-100 font-medium opacity-90 flex items-center justify-center sm:justify-start gap-1">
               <BookOpen className="w-4 h-4" /> {profile?.exam_class === 'alim' ? 'আলিম' : 'দাখিল'} পরীক্ষার্থী
             </p>
@@ -204,6 +254,57 @@ export default function ProgressPage() {
 
         </div>
       </div>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-[2rem] p-6">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-xl font-extrabold text-slate-800">প্রোফাইল এডিট করুন</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">আপনার নাম</label>
+              <Input 
+                value={editName} 
+                onChange={(e) => setEditName(e.target.value)} 
+                placeholder="আপনার পূর্ণ নাম লিখুন" 
+                className="h-12 rounded-xl bg-slate-50 border-slate-200"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">শ্রেণী / ক্লাস</label>
+              <Select value={editClass} onValueChange={(val: 'dakhil' | 'alim') => setEditClass(val)}>
+                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium">
+                  <SelectValue placeholder="শ্রেণী নির্বাচন করুন" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="dakhil" className="font-medium">দাখিল (Dakhil)</SelectItem>
+                  <SelectItem value="alim" className="font-medium">আলিম (Alim)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-6 gap-3 sm:gap-0">
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsEditOpen(false)}
+              className="rounded-xl font-bold"
+            >
+              বাতিল
+            </Button>
+            <Button 
+              disabled={isSaving || !editName.trim()} 
+              onClick={handleSaveProfile}
+              className="rounded-xl font-bold gradient-primary text-white"
+            >
+              {isSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> সংরক্ষণ হচ্ছে</> : 'সংরক্ষণ করুন'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

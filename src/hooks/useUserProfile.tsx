@@ -11,7 +11,7 @@ export function useUserProfile() {
       if (!user) return null;
       const { data, error } = await supabase
         .from('profiles')
-        .select('exam_class, target_exam_date, streak_count, best_mock_score')
+        .select('display_name, exam_class, target_exam_date, streak_count, best_mock_score')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Timer, CheckCircle, AlertCircle, RefreshCw, Trophy } from "lucide-react";
+import { Timer, CheckCircle, AlertCircle, RefreshCw, Trophy, ArrowLeft } from "lucide-react";
 import { useBoardQuestions, useSaveMockTestSession } from "@/hooks/useExamPrep";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,6 +10,7 @@ import { Database } from "@/integrations/supabase/types";
 type ExamClass = Database['public']['Enums']['exam_class'];
 
 export default function MockTestPage() {
+  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   const [testStarted, setTestStarted] = useState(false);
   const [testFinished, setTestFinished] = useState(false);
@@ -126,6 +128,9 @@ export default function MockTestPage() {
           {/* Header */}
           <div className="p-6 sm:p-8 bg-indigo-50/50 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-10 backdrop-blur-md">
             <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="rounded-full hover:bg-indigo-100 shrink-0" onClick={() => navigate('/')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
               <div className="h-12 w-12 rounded-2xl bg-indigo-100 flex items-center justify-center shrink-0">
                 <Timer className="h-6 w-6 text-indigo-600" />
               </div>

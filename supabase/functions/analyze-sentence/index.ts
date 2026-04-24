@@ -43,28 +43,26 @@ serve(async (req: Request) => {
       let url = "";
       let fetchBody: any = {};
       let fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
-
-      if (provider === "google") {
         apiKey = getSetting("gemini_api_key") || "";
         if (!apiKey) throw new Error("Gemini API Key সেট করা হয়নি। Admin Settings থেকে সেট করুন।");
         url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
         fetchBody = {
           contents: [{ parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }],
-          generationConfig: { temperature: 0.1 }
+          generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
         };
       } else if (provider === "openai") {
         apiKey = getSetting("openai_api_key") || "";
         if (!apiKey) throw new Error("OpenAI API Key সেট করা হয়নি। Admin Settings থেকে সেট করুন।");
         url = "https://api.openai.com/v1/chat/completions";
         fetchHeaders["Authorization"] = `Bearer ${apiKey}`;
-        fetchBody = { model: modelId, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }], temperature: 0.1 };
+        fetchBody = { model: modelId, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }], temperature: 0.1, response_format: { type: "json_object" } };
       } else if (provider === "openrouter") {
         apiKey = getSetting("openrouter_api_key") || "";
         if (!apiKey) throw new Error("OpenRouter API Key সেট করা হয়নি। Admin Settings থেকে সেট করুন।");
         url = "https://openrouter.ai/api/v1/chat/completions";
         fetchHeaders["Authorization"] = `Bearer ${apiKey}`;
         fetchHeaders["HTTP-Referer"] = "https://nahushikhi.app";
-        fetchBody = { model: modelId, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }] };
+        fetchBody = { model: modelId, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }], response_format: { type: "json_object" } };
       } else {
         throw new Error(`Unknown provider: ${provider}`);
       }
@@ -106,34 +104,54 @@ serve(async (req: Request) => {
     if (resolvedAction === "parse_tarkib") {
       const tarkibPrompt = `Arabic Tarkib Tree Analysis: "${sentence}"
 Requirement: Break the sentence down into words (level 0) AND combine them into grammatical phrases (level 1, 2, 3...) until the full sentence is formed (level Max).
-Format: Return ONLY a JSON array of objects. NO markdown, NO explanation, NO code fences.
-Object: {"id":"1","text":"Arabic Text","role":"Arabic Role","level":0,"children":["child_id1", "child_id2"]}
+Format: Return ONLY a valid JSON object containing a "nodes" array. NO markdown, NO explanation.
+Structure: { "nodes": [ {"id":"1","text":"Arabic Text","role":"Arabic Role","level":0,"children":["child_id1"]} ] }
 
 Example for "الحمد لله":
-[
-  {"id":"w1","text":"الحمد","role":"مبتداء","level":0,"children":[]},
-  {"id":"w2","text":"لـ","role":"حرف جار","level":0,"children":[]},
-  {"id":"w3","text":"الله","role":"لفظ الجلالة","level":0,"children":[]},
-  {"id":"p1","text":"لله","role":"جار ومجرور","level":1,"children":["w2","w3"]},
-  {"id":"p2","text":"لله (متعلق)","role":"خبر (شبه جملة)","level":2,"children":["p1"]},
-  {"id":"s1","text":"الحمد لله","role":"جملة اسمية","level":3,"children":["w1","p2"]}
-]
-Roles: مضاف إليه, মضاف, صفت, موصوف, جار, مجرور, مبتداء, خبر, جملة اسمية.
+{
+  "nodes": [
+    {"id":"w1","text":"الحمد","role":"مبتداء","level":0,"children":[]},
+    {"id":"w2","text":"لـ","role":"حرف جار","level":0,"children":[]},
+    {"id":"w3","text":"الله","role":"لفظ الجلالة","level":0,"children":[]},
+    {"id":"p1","text":"لله","role":"جار ومجرور","level":1,"children":["w2","w3"]},
+    {"id":"p2","text":"لله (متعلق)","role":"خبر (شبه جملة)","level":2,"children":["p1"]},
+    {"id":"s1","text":"الحمد لله","role":"جملة اسمية","level":3,"children":["w1","p2"]}
+  ]
+}
+Roles: مضاف إليه, مضاف, صفت, موصوف, جار, مجرور, مبتداء, خبر, جملة اسمية.
 CRITICAL: You MUST include children IDs to form the tree. Link all words to the final sentence.`;
 
       const rawText = await callAI(tarkibPrompt);
 
       console.log("[analyze-sentence] Raw AI response length:", rawText.length);
 
-      // Strip markdown fences and find the JSON array
-      let jsonStr = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      const arrStart = jsonStr.indexOf("[");
-      const arrEnd = jsonStr.lastIndexOf("]");
-      if (arrStart !== -1 && arrEnd !== -1) {
-        jsonStr = jsonStr.substring(arrStart, arrEnd + 1);
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText.trim());
+      } catch(e) {
+        // Fallback robust extraction
+        let jsonStr = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+        const objStart = jsonStr.indexOf("{");
+        const objEnd = jsonStr.lastIndexOf("}");
+        if (objStart !== -1 && objEnd !== -1) {
+          jsonStr = jsonStr.substring(objStart, objEnd + 1);
+        }
+        parsed = JSON.parse(jsonStr);
+      }
+      
+      // Ensure it is returned in a consistent structure
+      if (Array.isArray(parsed)) {
+        parsed = { nodes: parsed };
+      } else if (parsed && !parsed.nodes) {
+        // If the AI returned an object but used a different key like "tarkib" or "analysis"
+        const possibleArrayKey = Object.keys(parsed).find(k => Array.isArray(parsed[k]));
+        if (possibleArrayKey) {
+          parsed = { nodes: parsed[possibleArrayKey] };
+        } else {
+           parsed = { nodes: [] };
+        }
       }
 
-      let parsed = JSON.parse(jsonStr);
       return new Response(JSON.stringify(parsed), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

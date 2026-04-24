@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Copy, Layers, ChevronRight, ChevronLeft } from "lucide-react";
+import { Copy, Layers, ChevronRight, ChevronLeft, ArrowLeft } from "lucide-react";
 import { useRevisionCards } from "@/hooks/useExamPrep";
 import { Database } from "@/integrations/supabase/types";
+import { Button } from "@/components/ui/button";
 
 type ExamClass = Database['public']['Enums']['exam_class'];
 
 export default function RevisionCardsPage() {
+  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<ExamClass>("dakhil");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -34,6 +37,9 @@ export default function RevisionCardsPage() {
           {/* Header */}
           <div className="p-6 sm:p-8 bg-amber-50/50 border-b border-black/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="rounded-full hover:bg-amber-100 shrink-0" onClick={() => navigate('/')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
               <div className="h-12 w-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
                 <Copy className="h-6 w-6 text-amber-600" />
               </div>
