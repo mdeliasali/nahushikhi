@@ -236,7 +236,7 @@ export default function TarkibPage() {
       <div className="h-screen flex flex-col bg-[#FDFCFB]">
         <header className="px-6 h-20 border-b border-black/5 flex items-center justify-between glass-morphism sticky top-0 z-50">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>

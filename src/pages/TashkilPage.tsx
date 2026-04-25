@@ -4,7 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Check, X, ArrowRight, RotateCcw } from 'lucide-react';
+import { Check, X, ArrowRight, RotateCcw, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const correctionData = [
   { wrong: "كَانَ عُثْمَانُ (رض) غَنِي", correct: "كَانَ عُثْمَانُ (رض) غَنِيًّا", rule: "كان এর খবর মানসুব হয়" },
@@ -171,6 +172,7 @@ function CorrectionTab() {
 
 function HarakatTab() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [userInput, setUserInput] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
 
   const item = tashkilData[currentIndex];
@@ -178,12 +180,14 @@ function HarakatTab() {
   const handleNext = () => {
     if (currentIndex < tashkilData.length - 1) {
       setCurrentIndex(prev => prev + 1);
+      setUserInput('');
       setShowAnswer(false);
     }
   };
 
   const handleRestart = () => {
     setCurrentIndex(0);
+    setUserInput('');
     setShowAnswer(false);
   };
 
@@ -202,12 +206,22 @@ function HarakatTab() {
       </div>
 
       {!showAnswer ? (
-        <Button 
-          className="w-full h-12 text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white" 
-          onClick={() => setShowAnswer(true)}
-        >
-          উত্তর দেখো
-        </Button>
+        <div className="space-y-4">
+          <Textarea
+            placeholder="আপনার উত্তর এখানে লিখুন..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            className="min-h-[100px] resize-none text-xl p-4 border-amber-200 focus-visible:ring-amber-500 rounded-xl font-arabic"
+            dir="rtl"
+          />
+          <Button 
+            className="w-full h-12 text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white" 
+            onClick={() => setShowAnswer(true)}
+            disabled={!userInput.trim()}
+          >
+            উত্তর দেখো
+          </Button>
+        </div>
       ) : (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-100">
@@ -256,10 +270,19 @@ function HarakatTab() {
 }
 
 export default function TashkilPage() {
+  const navigate = useNavigate();
   return (
     <Layout>
       <div className="bg-amber-50 min-h-screen pb-24">
         <div className="bg-amber-500 text-white p-6 shadow-md rounded-b-3xl mb-6 relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)} 
+            className="absolute left-4 top-4 text-white hover:bg-white/20 rounded-full"
+          >
+            <ArrowLeft size={24} />
+          </Button>
           <h1 className="text-2xl font-bold text-center mb-2">তাশকিল ও সংশোধন</h1>
           <p className="text-center text-amber-100 text-sm">বাক্য সংশোধন এবং হরকত অনুশীলন</p>
         </div>

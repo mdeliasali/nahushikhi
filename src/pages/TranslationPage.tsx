@@ -4,7 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { Check, X, ArrowRight, RotateCcw } from 'lucide-react';
+import { Check, X, ArrowRight, RotateCcw, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 
 type TranslationMode = 'ar-to-bn' | 'bn-to-ar';
@@ -31,6 +32,7 @@ const bnToArData = [
 ];
 
 export default function TranslationPage() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<TranslationMode>('ar-to-bn');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -73,6 +75,14 @@ export default function TranslationPage() {
       <div className="bg-violet-50 min-h-screen pb-24">
         {/* We use a custom header to match the prompt's request for violet theme, or we can use PageHeader */}
         <div className="bg-violet-600 text-white p-6 shadow-md rounded-b-3xl mb-6 relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)} 
+            className="absolute left-4 top-4 text-white hover:bg-white/20 rounded-full"
+          >
+            <ArrowLeft size={24} />
+          </Button>
           <h1 className="text-2xl font-bold text-center mb-2">অনুবাদ প্র্যাকটিস</h1>
           <div className="flex justify-between items-center bg-white/20 rounded-full px-4 py-2 mt-4 text-sm font-medium">
              <div className="flex gap-4">

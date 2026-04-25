@@ -3,7 +3,8 @@ import Layout from '@/components/Layout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Check, Eye, EyeOff } from 'lucide-react';
+import { Copy, Check, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 
 const applicationText = {
@@ -129,10 +130,9 @@ function TextCard({
           
           {bnText && (
             <Button 
-              variant="outline" 
               size="sm"
               onClick={() => setShowMeaning(!showMeaning)}
-              className="bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+              className="bg-white text-emerald-800 hover:text-emerald-900 border border-emerald-300 hover:bg-emerald-50 shadow-sm"
             >
               {showMeaning ? <EyeOff size={16} className="mr-2" /> : <Eye size={16} className="mr-2" />}
               {showMeaning ? 'অর্থ লুকান' : 'অর্থ দেখুন'}
@@ -176,11 +176,20 @@ function TextCard({
 
 export default function InshaPage() {
   const [activeEssay, setActiveEssay] = useState(essays[0]);
+  const navigate = useNavigate();
 
   return (
     <Layout>
       <div className="bg-emerald-50 min-h-screen pb-24">
         <div className="bg-emerald-600 text-white p-6 shadow-md rounded-b-3xl mb-6 relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)} 
+            className="absolute left-4 top-4 text-white hover:bg-white/20 rounded-full"
+          >
+            <ArrowLeft size={24} />
+          </Button>
           <h1 className="text-2xl font-bold text-center mb-2">ইনশা ও রচনা</h1>
           <p className="text-center text-emerald-100 text-sm">দরখাস্ত, চিঠি এবং আরবি রচনা শিখুন</p>
         </div>
@@ -225,7 +234,7 @@ export default function InshaPage() {
             </TabsContent>
             
             <TabsContent value="essay" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <div className="space-y-4 mb-6 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+              <div className="mb-6 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                 {essays.map(essay => (
                   <Button
                     key={essay.id}
