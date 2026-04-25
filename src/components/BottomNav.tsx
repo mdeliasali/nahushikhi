@@ -16,7 +16,13 @@ export default function BottomNav() {
   return (
     <nav className="w-full glass-card border-t border-white/40 px-2 py-3 safe-area-bottom flex justify-around items-center rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] bg-white/70 backdrop-blur-2xl">
       {navItems.map((item) => {
-        const isActive = location.pathname.startsWith(item.path) && (item.path !== '/' || location.pathname === '/');
+        let isActive = location.pathname.startsWith(item.path) && (item.path !== '/' || location.pathname === '/');
+        
+        // Special case for tools
+        if (item.path === '/tools' && ['/translation', '/tashkil', '/insha', '/tools'].some(p => location.pathname.startsWith(p))) {
+          isActive = true;
+        }
+
         return (
           <button
             key={item.id}
