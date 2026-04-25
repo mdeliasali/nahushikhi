@@ -97,52 +97,68 @@ export default function Admin() {
       <main className="container mx-auto px-4 sm:px-6 py-6 max-w-5xl">
         {view === 'dashboard' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div onClick={() => setView('modules')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <Layers className="h-8 w-8 text-indigo-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">পাঠক্রম ও কন্টেন্ট</h3>
-              <p className="text-slate-500 text-sm">অধ্যায়, পাঠ ও কুইজ পরিচালনা করুন</p>
+            <div onClick={() => setView('modules')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mb-5">
+                <Layers className="h-7 w-7 text-indigo-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">পাঠক্রম ও কন্টেন্ট</h3>
+              <p className="text-slate-500 text-sm font-medium">অধ্যায়, পাঠ ও কুইজ পরিচালনা করুন</p>
             </div>
             
-            <div onClick={() => setView('board-questions')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <FileText className="h-8 w-8 text-amber-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">বোর্ড প্রশ্ন ব্যাংক</h3>
-              <p className="text-slate-500 text-sm">বিগত বছরের প্রশ্ন ম্যানেজমেন্ট</p>
+            <div onClick={() => setView('board-questions')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-5">
+                <BookOpen className="h-7 w-7 text-blue-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">বোর্ড প্রশ্ন</h3>
+              <p className="text-slate-500 text-sm font-medium">বিগত সালের প্রশ্ন ম্যানেজমেন্ট</p>
             </div>
             
-            <div onClick={() => setView('revision-cards')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <HelpCircle className="h-8 w-8 text-emerald-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">রিভিশন কার্ড</h3>
-              <p className="text-slate-500 text-sm">ইন্টারেক্টিভ ফ্ল্যাশকার্ড তৈরি করুন</p>
+            <div onClick={() => setView('revision-cards')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
+                <HelpCircle className="h-7 w-7 text-amber-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">রিভিশন কার্ড</h3>
+              <p className="text-slate-500 text-sm font-medium">নিয়ম ও সংজ্ঞা</p>
             </div>
 
-            <div onClick={() => setView('analytics')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <BookOpen className="h-8 w-8 text-blue-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">ইউজার পরিসংখ্যান</h3>
-              <p className="text-slate-500 text-sm">মক টেস্ট ও ইউজার ডাটা ড্যাশবোর্ড</p>
+            <div onClick={() => setView('analytics')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-cyan-50 flex items-center justify-center mb-5">
+                <FileText className="h-7 w-7 text-cyan-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">ইউজার পরিসংখ্যান</h3>
+              <p className="text-slate-500 text-sm font-medium">মক টেস্ট ও ইউজার ডাটা</p>
             </div>
 
-            <div onClick={() => setView('translations')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <Languages className="h-8 w-8 text-purple-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">অনুবাদ অনুশীলন</h3>
-              <p className="text-slate-500 text-sm">আরবি ও বাংলা অনুবাদ ডাটাবেস</p>
+            <div onClick={() => setView('translations')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center mb-5">
+                <Languages className="h-7 w-7 text-purple-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">অনুবাদ অনুশীলন</h3>
+              <p className="text-slate-500 text-sm font-medium">আরবি ও বাংলা অনুবাদ ডাটাবেস</p>
             </div>
             
-            <div onClick={() => setView('tashkils')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <CheckSquare className="h-8 w-8 text-teal-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">তাশকিল ও সংশোধন</h3>
-              <p className="text-slate-500 text-sm">হরকত এবং বাক্য সংশোধন</p>
+            <div onClick={() => setView('tashkils')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center mb-5">
+                <CheckSquare className="h-7 w-7 text-teal-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">তাশকিল ও সংশোধন</h3>
+              <p className="text-slate-500 text-sm font-medium">হরকত এবং বাক্য সংশোধন</p>
             </div>
 
-            <div onClick={() => setView('inshas')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <Edit3 className="h-8 w-8 text-pink-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">ইনশা ও রচনা</h3>
-              <p className="text-slate-500 text-sm">দরখাস্ত, চিঠি এবং রচনা</p>
+            <div onClick={() => setView('inshas')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-pink-50 flex items-center justify-center mb-5">
+                <Edit3 className="h-7 w-7 text-pink-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">ইনশা ও রচনা</h3>
+              <p className="text-slate-500 text-sm font-medium">দরখাস্ত, চিঠি এবং রচনা</p>
             </div>
 
-            <div onClick={() => setView('ai-settings')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
-              <Settings className="h-8 w-8 text-slate-600 mb-4" />
-              <h3 className="font-bold text-lg mb-1">AI ও গ্লোবাল সেটিংস</h3>
-              <p className="text-slate-500 text-sm">মডেল API এবং টুলস কনফিগারেশন</p>
+            <div onClick={() => setView('ai-settings')} className="bg-white p-6 rounded-3xl border border-slate-50 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-5">
+                <Settings className="h-7 w-7 text-slate-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-1 text-slate-800">AI ও গ্লোবাল সেটিংস</h3>
+              <p className="text-slate-500 text-sm font-medium">মডেল API এবং টুলস</p>
             </div>
           </div>
         )}
