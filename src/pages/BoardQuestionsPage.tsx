@@ -69,12 +69,12 @@ export default function BoardQuestionsPage() {
             title="বোর্ড প্রশ্নাবলি"
             subtitle="ইন্টারেক্টিভ বোর্ড প্রশ্ন সমাধান ও রিভিশন"
             icon={BookOpen}
-            iconBgColor="bg-blue-100"
-            iconColor="text-blue-600"
-            className="bg-blue-50/50"
+            iconBgColor="bg-primary/10"
+            iconColor="text-primary"
+            className="bg-primary/5"
           >
             <select 
-              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value as ExamClass)}
               title="শ্রেণি নির্বাচন করুন"
@@ -85,7 +85,7 @@ export default function BoardQuestionsPage() {
             </select>
             
             <select 
-              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-100 outline-none cursor-pointer"
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
               value={selectedYear || ""}
               onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : undefined)}
               title="সাল নির্বাচন করুন"
@@ -108,7 +108,7 @@ export default function BoardQuestionsPage() {
               </div>
             ) : !questions || questions.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 h-full">
-                <div className="h-16 w-16 bg-blue-50 text-blue-300 rounded-full flex items-center justify-center mb-4">
+                <div className="h-16 w-16 bg-primary/5 text-primary/50 rounded-full flex items-center justify-center mb-4">
                   <Search className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-700">কোনো প্রশ্ন পাওয়া যায়নি</h3>
@@ -125,7 +125,7 @@ export default function BoardQuestionsPage() {
                     প্রশ্ন {currentIndex + 1} / {questions.length}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="bg-blue-100 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    <span className="bg-primary/10 text-primary text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
                       {currentQ.board_name} {currentQ.year}
                     </span>
                   </div>
@@ -158,8 +158,8 @@ export default function BoardQuestionsPage() {
                           const isCorrectOpt = showResult && opt === currentQ.correct_answer;
                           const isWrongOpt = showResult && isSelected && !isCorrect;
                           
-                          let btnClass = "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50";
-                          if (isSelected && !showResult) btnClass = "border-blue-500 bg-blue-50 text-blue-800 ring-1 ring-blue-500 shadow-sm";
+                          let btnClass = "border-slate-200 bg-white text-slate-700 hover:border-primary/40 hover:bg-primary/5";
+                          if (isSelected && !showResult) btnClass = "border-primary bg-primary/5 text-primary ring-1 ring-primary shadow-sm";
                           if (isCorrectOpt) btnClass = "border-green-500 bg-green-50 text-green-800 ring-1 ring-green-500 shadow-sm";
                           if (isWrongOpt) btnClass = "border-red-500 bg-red-50 text-red-800 ring-1 ring-red-500 shadow-sm";
 
@@ -171,7 +171,7 @@ export default function BoardQuestionsPage() {
                               className={`p-4 rounded-xl border text-left font-medium transition-all duration-200 ${btnClass}`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className={`flex items-center justify-center h-6 w-6 rounded-full text-xs shrink-0 ${isSelected && !showResult ? 'bg-blue-500 text-white' : isCorrectOpt ? 'bg-green-500 text-white' : isWrongOpt ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                                <div className={`flex items-center justify-center h-6 w-6 rounded-full text-xs shrink-0 ${isSelected && !showResult ? 'bg-primary text-primary-foreground' : isCorrectOpt ? 'bg-green-500 text-white' : isWrongOpt ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
                                   {String.fromCharCode(2534 + i)}
                                 </div>
                                 <span className={isCorrectOpt ? "font-bold" : ""}>{opt as string}</span>
@@ -187,7 +187,7 @@ export default function BoardQuestionsPage() {
                           onChange={e => setWrittenAnswer(e.target.value)}
                           disabled={showResult}
                           placeholder="আপনার উত্তর এখানে লিখুন..."
-                          className="w-full p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 outline-none min-h-[120px] transition-all"
+                          className="w-full p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none min-h-[120px] transition-all"
                         />
                       </div>
                     )}
@@ -263,7 +263,7 @@ export default function BoardQuestionsPage() {
                                   <ArrowRight className="h-4 w-4 ml-2" />
                                 </Button>
                               ) : (
-                                <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-bold flex items-center">
+                                <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg font-bold flex items-center">
                                   এই সেশনের সবগুলো প্রশ্ন শেষ! 🎉
                                 </div>
                               )

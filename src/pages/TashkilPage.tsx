@@ -37,7 +37,7 @@ function CorrectionTab({ correctionData }: { correctionData: any[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center text-sm font-medium text-amber-800 bg-amber-100 px-4 py-2 rounded-full mb-4">
+      <div className="flex justify-between items-center text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full mb-4">
         <span>প্রশ্ন {currentIndex + 1} / {correctionData.length}</span>
       </div>
 
@@ -52,11 +52,11 @@ function CorrectionTab({ correctionData }: { correctionData: any[] }) {
             placeholder="সঠিক বাক্যটি এখানে লিখুন..."
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            className="min-h-[100px] resize-none text-xl p-4 border-amber-200 focus-visible:ring-amber-500 rounded-xl font-arabic"
+            className="min-h-[100px] resize-none text-xl p-4 border-primary/20 focus-visible:ring-primary rounded-xl font-arabic"
             dir="rtl"
           />
           <Button 
-            className="w-full h-12 text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white" 
+            className="w-full h-12 text-lg rounded-xl gradient-primary text-primary-foreground" 
             onClick={() => setShowAnswer(true)}
             disabled={!userInput.trim()}
           >
@@ -69,7 +69,7 @@ function CorrectionTab({ correctionData }: { correctionData: any[] }) {
             <p className="text-sm text-green-700 font-semibold mb-2">সঠিক উত্তর:</p>
             <p className="text-3xl font-arabic text-right leading-loose text-green-800 mb-4" dir="rtl">{item.correct}</p>
             <div className="bg-white/60 p-3 rounded-lg border border-green-200">
-              <p className="text-sm text-amber-800 font-medium"><span className="font-bold">নিয়ম:</span> {item.rule}</p>
+              <p className="text-sm text-primary font-medium"><span className="font-bold">নিয়ম:</span> {item.rule}</p>
             </div>
           </div>
           
@@ -94,7 +94,7 @@ function CorrectionTab({ correctionData }: { correctionData: any[] }) {
             </div>
           ) : (
             <Button 
-              className="w-full h-14 text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white"
+              className="w-full h-14 text-lg rounded-xl gradient-primary text-primary-foreground"
               onClick={currentIndex < correctionData.length - 1 ? handleNext : handleRestart}
             >
               {currentIndex < correctionData.length - 1 ? (
@@ -133,15 +133,15 @@ function HarakatTab({ tashkilData }: { tashkilData: any[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center text-sm font-medium text-amber-800 bg-amber-100 px-4 py-2 rounded-full mb-4">
+      <div className="flex justify-between items-center text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full mb-4">
         <span>প্রশ্ন {currentIndex + 1} / {tashkilData.length}</span>
       </div>
 
-      <div className="bg-white border border-amber-200 rounded-xl p-6 text-center shadow-sm">
+      <div className="bg-white border border-primary/20 rounded-xl p-6 text-center shadow-sm">
         <p className="text-sm text-gray-500 font-semibold mb-4">নিচের বাক্যে হরকত দিন:</p>
         <p className="text-3xl font-arabic text-gray-800 leading-loose mb-6" dir="rtl">{item.noHaraka}</p>
-        <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 inline-block">
-          <p className="text-sm text-amber-800"><span className="font-bold">অর্থ:</span> {item.meaning}</p>
+        <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 inline-block">
+          <p className="text-sm text-primary"><span className="font-bold">অর্থ:</span> {item.meaning}</p>
         </div>
       </div>
 
@@ -151,11 +151,11 @@ function HarakatTab({ tashkilData }: { tashkilData: any[] }) {
             placeholder="আপনার উত্তর এখানে লিখুন..."
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            className="min-h-[100px] resize-none text-xl p-4 border-amber-200 focus-visible:ring-amber-500 rounded-xl font-arabic"
+            className="min-h-[100px] resize-none text-xl p-4 border-primary/20 focus-visible:ring-primary rounded-xl font-arabic"
             dir="rtl"
           />
           <Button 
-            className="w-full h-12 text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white" 
+            className="w-full h-12 text-lg rounded-xl gradient-primary text-primary-foreground" 
             onClick={() => setShowAnswer(true)}
             disabled={!userInput.trim()}
           >
@@ -194,7 +194,7 @@ function HarakatTab({ tashkilData }: { tashkilData: any[] }) {
           </div>
           
           <Button 
-            className="w-full h-14 text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white"
+            className="w-full h-14 text-lg rounded-xl gradient-primary text-primary-foreground"
             onClick={currentIndex < tashkilData.length - 1 ? handleNext : handleRestart}
           >
             {currentIndex < tashkilData.length - 1 ? (
@@ -228,8 +228,8 @@ export default function TashkilPage() {
 
   return (
     <Layout>
-      <div className="bg-amber-50 min-h-screen pb-24">
-        <div className="bg-amber-500 text-white p-6 shadow-md rounded-b-3xl mb-6 relative">
+      <div className="bg-background min-h-screen pb-24">
+        <div className="gradient-primary text-primary-foreground p-6 shadow-md rounded-b-3xl mb-6 relative">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -239,21 +239,21 @@ export default function TashkilPage() {
             <ArrowLeft size={24} />
           </Button>
           <h1 className="text-2xl font-bold text-center mb-2">তাশকিল ও সংশোধন</h1>
-          <p className="text-center text-amber-100 text-sm">বাক্য সংশোধন এবং হরকত অনুশীলন</p>
+          <p className="text-center text-primary-foreground/80 text-sm">বাক্য সংশোধন এবং হরকত অনুশীলন</p>
         </div>
 
         <div className="max-w-2xl mx-auto px-4">
           <Tabs defaultValue="correction" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-amber-200/50 p-1 rounded-xl h-14 mb-6">
+            <TabsList className="grid w-full grid-cols-2 bg-primary/10 p-1 rounded-xl h-14 mb-6">
               <TabsTrigger 
                 value="correction" 
-                className="rounded-lg text-amber-900 data-[state=active]:bg-white data-[state=active]:text-amber-700 data-[state=active]:shadow-sm text-base font-medium"
+                className="rounded-lg text-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-base font-medium"
               >
                 বাক্য সংশোধন
               </TabsTrigger>
               <TabsTrigger 
                 value="harakat"
-                className="rounded-lg text-amber-900 data-[state=active]:bg-white data-[state=active]:text-amber-700 data-[state=active]:shadow-sm text-base font-medium"
+                className="rounded-lg text-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-base font-medium"
               >
                 শকল (হরকত)
               </TabsTrigger>
@@ -261,13 +261,13 @@ export default function TashkilPage() {
             
             <TabsContent value="correction" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <Card className="p-6 shadow-lg border-none bg-white/80 backdrop-blur-sm rounded-2xl">
-                {loading ? <div className="text-center py-10 text-amber-600">লোড হচ্ছে...</div> : <CorrectionTab correctionData={correctionData} />}
+                {loading ? <div className="text-center py-10 text-primary">লোড হচ্ছে...</div> : <CorrectionTab correctionData={correctionData} />}
               </Card>
             </TabsContent>
             
             <TabsContent value="harakat" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <Card className="p-6 shadow-lg border-none bg-white/80 backdrop-blur-sm rounded-2xl">
-                {loading ? <div className="text-center py-10 text-amber-600">লোড হচ্ছে...</div> : <HarakatTab tashkilData={tashkilData} />}
+                {loading ? <div className="text-center py-10 text-primary">লোড হচ্ছে...</div> : <HarakatTab tashkilData={tashkilData} />}
               </Card>
             </TabsContent>
           </Tabs>

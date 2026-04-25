@@ -98,7 +98,7 @@ export default function ProgressPage() {
       <div className="container max-w-4xl mx-auto px-4 py-8 animate-in-fade pb-24">
         
         {/* Profile Header */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-elevated mb-8 relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-[2.5rem] gradient-primary text-primary-foreground shadow-elevated mb-8 relative overflow-hidden ring-1 ring-white/10">
           <div className="absolute right-0 top-0 opacity-10 scale-150 rotate-12 transform -translate-y-10 translate-x-10">
             <Trophy className="w-64 h-64" />
           </div>
@@ -125,7 +125,7 @@ export default function ProgressPage() {
                   <Edit2 className="w-4 h-4 text-white" />
                 </button>
               </div>
-              <p className="text-indigo-100 font-medium opacity-90 flex items-center justify-center sm:justify-start gap-1">
+              <p className="text-primary-foreground/90 font-medium opacity-90 flex items-center justify-center sm:justify-start gap-1">
                 <BookOpen className="w-4 h-4" /> {profile?.exam_class === 'alim' ? 'আলিম' : 'দাখিল'} পরীক্ষার্থী
               </p>
             </div>
@@ -193,7 +193,7 @@ export default function ProgressPage() {
             <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-black/5 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                  <History className="w-5 h-5 text-indigo-500" /> বিগত মক টেস্ট
+                  <History className="w-5 h-5 text-primary" /> বিগত মক টেস্ট
                 </h2>
               </div>
               

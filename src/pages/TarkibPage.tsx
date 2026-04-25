@@ -147,7 +147,7 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
                         <div className="flex flex-col items-center justify-center w-full h-full text-center">
                           <span className="text-4xl font-bold font-arabic text-slate-800 leading-tight drop-shadow-sm">{node.text}</span>
                           {node.role && (
-                            <span className="text-sm font-bold font-arabic text-amber-700 mt-3 bg-amber-100/80 px-4 py-1.5 rounded-full border border-amber-300/50 shadow-sm backdrop-blur-sm">
+                            <span className="text-sm font-bold font-arabic text-primary mt-3 bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20 shadow-sm backdrop-blur-sm">
                               {node.role}
                             </span>
                           )}
@@ -156,7 +156,7 @@ function TarkibVisualization({ nodes, scale }: { nodes: TarkibNode[], scale: num
                     ) : (
                       <foreignObject x={p.x - 120} y={p.y - 30} width={240} height={60}>
                         <div className="flex items-center justify-center w-full h-full">
-                          <span className="text-[16px] font-bold font-arabic text-emerald-800 bg-emerald-50 border-2 border-emerald-200/60 px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
+                          <span className="text-[16px] font-bold font-arabic text-primary bg-primary/5 border-2 border-primary/20 px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
                             {node.role}
                           </span>
                         </div>
@@ -241,7 +241,7 @@ export default function TarkibPage() {
             </Button>
             <div>
               <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <MessageSquare className="h-6 w-6 text-amber-500" />
+                <MessageSquare className="h-6 w-6 text-primary" />
                 তারকিব পার্সার
               </h1>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">বাক্য বিশ্লেষণ ও গ্রামার ম্যাপ</p>
@@ -295,7 +295,7 @@ export default function TarkibPage() {
               onChange={e => setSentence(e.target.value)} 
               onKeyDown={e => e.key === 'Enter' && analyzeSentence()}
               placeholder="আরবি বাক্য লিখুন (উদা: الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ)" 
-              className="h-16 font-arabic text-3xl bg-white rounded-3xl text-right flex-1 shadow-card border-black/5 px-8 ring-offset-0 focus:ring-2 focus:ring-amber-200" 
+              className="h-16 font-arabic text-3xl bg-white rounded-3xl text-right flex-1 shadow-card border-black/5 px-8 ring-offset-0 focus:ring-2 focus:ring-primary/20" 
               dir="rtl" 
             />
             <Button 
@@ -311,9 +311,9 @@ export default function TarkibPage() {
             {loading ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
                 <div className="relative h-24 w-24 mb-6">
-                  <div className="absolute inset-0 rounded-full border-4 border-amber-200" />
-                  <div className="absolute inset-0 rounded-full border-4 border-amber-500 border-t-transparent animate-spin" />
-                  <Loader2 className="absolute inset-0 m-auto h-10 w-10 text-amber-500 animate-pulse" />
+                  <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+                  <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                  <Loader2 className="absolute inset-0 m-auto h-10 w-10 text-primary animate-pulse" />
                 </div>
                 <h3 className="text-xl font-black text-slate-800 mb-2">বাক্য বিশ্লেষণ করা হচ্ছে</h3>
                 <p className="text-sm font-bold text-slate-500">AI আপনার বাক্যের নাহু-সরফ কাঠামো ম্যাপ করছে...</p>
@@ -328,8 +328,8 @@ export default function TarkibPage() {
               </>
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-12">
-                <div className="h-24 w-24 rounded-[2.5rem] bg-amber-50 flex items-center justify-center mb-6 shadow-sm ring-1 ring-amber-100">
-                  <Sparkles className="h-12 w-12 text-amber-400" />
+                <div className="h-24 w-24 rounded-[2.5rem] bg-primary/5 flex items-center justify-center mb-6 shadow-sm ring-1 ring-primary/20">
+                  <Sparkles className="h-12 w-12 text-primary" />
                 </div>
                 <h2 className="text-2xl font-black text-slate-800 mb-3">তারকিব ড্যাশবোর্ড</h2>
                 <p className="text-sm font-bold text-slate-500 max-w-sm leading-relaxed">

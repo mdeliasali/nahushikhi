@@ -50,12 +50,12 @@ export default function ShortQuestionsPage() {
             title="সংক্ষিপ্ত প্রশ্নাবলি"
             subtitle="মডেল উত্তরসহ গুরুত্বপূর্ণ প্রশ্নোত্তর ও সেল্ফ-টেস্ট"
             icon={MessageSquareText}
-            iconBgColor="bg-rose-100"
-            iconColor="text-rose-600"
-            className="bg-rose-50/50"
+            iconBgColor="bg-primary/10"
+            iconColor="text-primary"
+            className="bg-primary/5"
           >
             <select 
-              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-rose-100 outline-none cursor-pointer"
+              className="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
               value={selectedClass}
               title="শ্রেণি নির্বাচন করুন"
               aria-label="শ্রেণি নির্বাচন করুন"
@@ -75,7 +75,7 @@ export default function ShortQuestionsPage() {
               </div>
             ) : !questions || questions.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 h-full">
-                <div className="h-16 w-16 bg-rose-50 text-rose-300 rounded-full flex items-center justify-center mb-4">
+                <div className="h-16 w-16 bg-primary/5 text-primary/50 rounded-full flex items-center justify-center mb-4">
                   <Search className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-700">কোনো সংক্ষিপ্ত প্রশ্ন পাওয়া যায়নি</h3>
@@ -93,7 +93,7 @@ export default function ShortQuestionsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {currentQ.likely_year && (
-                      <span className="bg-rose-100 text-rose-700 text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      <span className="bg-primary/10 text-primary text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
                         সাল: {currentQ.likely_year}
                       </span>
                     )}
@@ -126,7 +126,7 @@ export default function ShortQuestionsPage() {
                           value={writtenAnswer}
                           onChange={e => setWrittenAnswer(e.target.value)}
                           placeholder="সংক্ষিপ্ত প্রশ্নের উত্তর লিখুন..."
-                          className="w-full p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-rose-100 outline-none min-h-[120px] transition-all"
+                          className="w-full p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none min-h-[120px] transition-all"
                         />
                         <div className="mt-4 flex justify-end">
                           <Button 
@@ -146,10 +146,10 @@ export default function ShortQuestionsPage() {
                           <p className="text-slate-800 font-medium whitespace-pre-wrap">{writtenAnswer}</p>
                         </div>
                         
-                        <div className="bg-rose-50/30 p-4 rounded-xl border border-rose-100 flex gap-3">
-                          <BookOpenCheck className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 flex gap-3">
+                          <BookOpenCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                           <div>
-                            <span className="font-bold text-sm text-rose-700 block mb-2">মডেল উত্তর:</span>
+                            <span className="font-bold text-sm text-primary block mb-2">মডেল উত্তর:</span>
                             <p className="text-sm text-slate-700 font-medium whitespace-pre-wrap leading-relaxed">
                               {currentQ.model_answer}
                             </p>
@@ -158,7 +158,7 @@ export default function ShortQuestionsPage() {
                               <ul className="mt-3 space-y-2">
                                 {currentQ.answer_points.map((point: any, i: number) => (
                                   <li key={i} className="flex gap-2 text-sm text-slate-700">
-                                    <span className="text-rose-500 font-bold">•</span>
+                                    <span className="text-primary font-bold">•</span>
                                     {point as string}
                                   </li>
                                 ))}
@@ -250,7 +250,7 @@ export default function ShortQuestionsPage() {
                                       <ArrowRight className="h-4 w-4 ml-2" />
                                     </Button>
                                   ) : (
-                                    <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-bold flex items-center">
+                                    <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg font-bold flex items-center">
                                       এই সেশনের সবগুলো প্রশ্ন শেষ! 🎉
                                     </div>
                                   )}

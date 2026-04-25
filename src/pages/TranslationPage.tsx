@@ -58,9 +58,9 @@ export default function TranslationPage() {
 
   return (
     <Layout>
-      <div className="bg-violet-50 min-h-screen pb-24">
-        {/* We use a custom header to match the prompt's request for violet theme, or we can use PageHeader */}
-        <div className="bg-violet-600 text-white p-6 shadow-md rounded-b-3xl mb-6 relative">
+      <div className="bg-background min-h-screen pb-24">
+        {/* We use a custom header to match the prompt's request for primary theme */}
+        <div className="gradient-primary text-primary-foreground p-6 shadow-md rounded-b-3xl mb-6 relative">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -80,31 +80,31 @@ export default function TranslationPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20 text-violet-600">লোড হচ্ছে...</div>
+          <div className="flex justify-center py-20 text-primary">লোড হচ্ছে...</div>
         ) : (
         <div className="max-w-2xl mx-auto px-4 space-y-6">
-          <div className="flex justify-center bg-white p-1 rounded-full shadow-sm">
+          <div className="flex justify-center bg-white p-1 rounded-full shadow-sm border border-primary/10">
             <Button
               variant={mode === 'ar-to-bn' ? 'default' : 'ghost'}
-              className={`flex-1 rounded-full ${mode === 'ar-to-bn' ? 'bg-violet-600 hover:bg-violet-700' : ''}`}
+              className={`flex-1 rounded-full ${mode === 'ar-to-bn' ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
               onClick={() => { setMode('ar-to-bn'); handleRestart(); }}
             >
               আরবি → বাংলা
             </Button>
             <Button
               variant={mode === 'bn-to-ar' ? 'default' : 'ghost'}
-              className={`flex-1 rounded-full ${mode === 'bn-to-ar' ? 'bg-violet-600 hover:bg-violet-700' : ''}`}
+              className={`flex-1 rounded-full ${mode === 'bn-to-ar' ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
               onClick={() => { setMode('bn-to-ar'); handleRestart(); }}
             >
               বাংলা → আরবি
             </Button>
           </div>
 
-          <Progress value={progress} className="h-2 bg-violet-100" indicatorClassName="bg-violet-600" />
+          <Progress value={progress} className="h-2 bg-primary/20" indicatorClassName="bg-primary" />
 
           {currentIndex < currentData.length ? (
             <Card className="p-6 shadow-lg border-none bg-white/80 backdrop-blur-sm rounded-2xl">
-              <div className="min-h-[120px] flex items-center justify-center mb-6 bg-violet-50/50 rounded-xl p-4 border border-violet-100">
+              <div className="min-h-[120px] flex items-center justify-center mb-6 bg-primary/5 rounded-xl p-4 border border-primary/10">
                 {mode === 'ar-to-bn' ? (
                   <p className="text-3xl font-arabic text-right leading-loose" dir="rtl">
                     {currentItem.ar}
@@ -122,11 +122,11 @@ export default function TranslationPage() {
                     placeholder="আপনার অনুবাদ এখানে লিখুন..."
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
-                    className="min-h-[100px] resize-none text-lg p-4 border-violet-200 focus-visible:ring-violet-500 rounded-xl"
+                    className="min-h-[100px] resize-none text-lg p-4 border-primary/20 focus-visible:ring-primary rounded-xl"
                     dir={mode === 'bn-to-ar' ? 'rtl' : 'ltr'}
                   />
                   <Button 
-                    className="w-full h-12 text-lg rounded-xl bg-violet-600 hover:bg-violet-700" 
+                    className="w-full h-12 text-lg rounded-xl gradient-primary text-primary-foreground hover:opacity-90" 
                     onClick={() => setShowAnswer(true)}
                     disabled={!userInput.trim()}
                   >
@@ -165,7 +165,7 @@ export default function TranslationPage() {
                     </div>
                   ) : (
                     <Button 
-                      className="w-full h-14 text-lg rounded-xl bg-violet-600 hover:bg-violet-700"
+                      className="w-full h-14 text-lg rounded-xl gradient-primary text-primary-foreground hover:opacity-90"
                       onClick={handleNext}
                     >
                       পরবর্তী <ArrowRight className="ml-2" />
@@ -176,7 +176,7 @@ export default function TranslationPage() {
             </Card>
           ) : (
             <Card className="p-8 text-center space-y-6 shadow-lg border-none bg-white/80 backdrop-blur-sm rounded-2xl animate-in zoom-in-95 duration-500">
-              <div className="w-24 h-24 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check size={48} />
               </div>
               <h2 className="text-2xl font-bold text-gray-800">অভিনন্দন!</h2>
@@ -195,7 +195,7 @@ export default function TranslationPage() {
 
               <Button 
                 onClick={handleRestart}
-                className="w-full h-14 text-lg rounded-xl bg-violet-600 hover:bg-violet-700"
+                className="w-full h-14 text-lg rounded-xl gradient-primary text-primary-foreground hover:opacity-90"
               >
                 <RotateCcw className="mr-2" /> পুনরায় শুরু করুন
               </Button>

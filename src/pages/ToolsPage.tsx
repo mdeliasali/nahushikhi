@@ -12,32 +12,32 @@ export default function ToolsPage() {
       description: 'আরবি বাক্যের গঠন ও ব্যাকরণগত বিশ্লেষণ এআই-এর মাধ্যমে শিখুন।',
       icon: Sparkles,
       path: '/tools/tarkib',
-      color: 'bg-indigo-50 text-indigo-600',
-      borderColor: 'border-indigo-100 hover:border-indigo-300'
+      color: 'bg-primary/10 text-primary',
+      borderColor: 'border-primary/20 hover:border-primary/40'
     },
     {
       title: 'অনুবাদ প্র্যাকটিস',
       description: 'আরবি থেকে বাংলা এবং বাংলা থেকে আরবি অনুবাদের চর্চা করুন।',
       icon: Languages,
       path: '/translation',
-      color: 'bg-violet-50 text-violet-600',
-      borderColor: 'border-violet-100 hover:border-violet-300'
+      color: 'bg-primary/10 text-primary',
+      borderColor: 'border-primary/20 hover:border-primary/40'
     },
     {
       title: 'তাশকিল ও সংশোধন',
       description: 'ভুল বাক্য সংশোধন এবং হরকত ছাড়া বাক্যে হরকত দেওয়ার অনুশীলন।',
       icon: PenLine,
       path: '/tashkil',
-      color: 'bg-amber-50 text-amber-600',
-      borderColor: 'border-amber-100 hover:border-amber-300'
+      color: 'bg-primary/10 text-primary',
+      borderColor: 'border-primary/20 hover:border-primary/40'
     },
     {
       title: 'ইনশা ও রচনা',
       description: 'আরবি দরখাস্ত, চিঠি এবং বিভিন্ন বিষয়ের ওপর আরবি রচনা।',
       icon: FileText,
       path: '/insha',
-      color: 'bg-emerald-50 text-emerald-600',
-      borderColor: 'border-emerald-100 hover:border-emerald-300'
+      color: 'bg-primary/10 text-primary',
+      borderColor: 'border-primary/20 hover:border-primary/40'
     }
   ];
 
