@@ -20,6 +20,9 @@ import BoardQuestionsPage from "./pages/BoardQuestionsPage";
 import MockTestPage from "./pages/MockTestPage";
 import RevisionCardsPage from "./pages/RevisionCardsPage";
 import ShortQuestionsPage from "./pages/ShortQuestionsPage";
+import TranslationPage from "./pages/TranslationPage";
+import TashkilPage from "./pages/TashkilPage";
+import InshaPage from "./pages/InshaPage";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +52,9 @@ const App = () => (
             <Route path="/mock-test" element={<MockTestPage />} />
             <Route path="/revision" element={<RevisionCardsPage />} />
             <Route path="/short-questions" element={<ShortQuestionsPage />} />
+            <Route path="/translation" element={<TranslationPage />} />
+            <Route path="/tashkil" element={<TashkilPage />} />
+            <Route path="/insha" element={<InshaPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
