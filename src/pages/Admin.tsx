@@ -6,7 +6,7 @@ import {
   useModuleMutations, useChapterMutations, useLessonMutations, useQuestionMutations,
 } from '@/hooks/useCurriculum';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, BookOpen, Layers, FileText, HelpCircle, Settings } from 'lucide-react';
+import { ArrowLeft, Plus, BookOpen, Layers, FileText, HelpCircle, Settings, Languages, CheckSquare, Edit3 } from 'lucide-react';
 import AdminModuleList from '@/components/admin/AdminModuleList';
 import AdminChapterList from '@/components/admin/AdminChapterList';
 import AdminLessonList from '@/components/admin/AdminLessonList';
@@ -16,8 +16,11 @@ import AdminAISettings from '@/components/admin/AdminAISettings';
 import AdminBoardQuestions from '@/components/admin/AdminBoardQuestions';
 import AdminRevisionCards from '@/components/admin/AdminRevisionCards';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
+import AdminTranslations from '@/components/admin/AdminTranslations';
+import AdminTashkils from '@/components/admin/AdminTashkils';
+import AdminInshas from '@/components/admin/AdminInshas';
 
-type AdminView = 'dashboard' | 'modules' | 'chapters' | 'lessons' | 'lesson-editor' | 'questions' | 'ai-settings' | 'board-questions' | 'revision-cards' | 'analytics';
+type AdminView = 'dashboard' | 'modules' | 'chapters' | 'lessons' | 'lesson-editor' | 'questions' | 'ai-settings' | 'board-questions' | 'revision-cards' | 'analytics' | 'translations' | 'tashkils' | 'inshas';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -47,6 +50,9 @@ export default function Admin() {
       case 'board-questions':
       case 'revision-cards':
       case 'analytics':
+      case 'translations':
+      case 'tashkils':
+      case 'inshas':
         setView('dashboard'); break;
       default: navigate('/'); break;
     }
@@ -64,6 +70,9 @@ export default function Admin() {
       if (view === 'board-questions') parts.push('বোর্ড প্রশ্ন');
       if (view === 'revision-cards') parts.push('রিভিশন কার্ড');
       if (view === 'analytics') parts.push('পরিসংখ্যান');
+      if (view === 'translations') parts.push('অনুবাদ অনুশীলন');
+      if (view === 'tashkils') parts.push('তাশকিল ও সংশোধন');
+      if (view === 'inshas') parts.push('ইনশা ও রচনা');
     }
     return parts.join(' › ');
   };
@@ -112,6 +121,24 @@ export default function Admin() {
               <p className="text-slate-500 text-sm">মক টেস্ট ও ইউজার ডাটা ড্যাশবোর্ড</p>
             </div>
 
+            <div onClick={() => setView('translations')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <Languages className="h-8 w-8 text-purple-600 mb-4" />
+              <h3 className="font-bold text-lg mb-1">অনুবাদ অনুশীলন</h3>
+              <p className="text-slate-500 text-sm">আরবি ও বাংলা অনুবাদ ডাটাবেস</p>
+            </div>
+            
+            <div onClick={() => setView('tashkils')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <CheckSquare className="h-8 w-8 text-teal-600 mb-4" />
+              <h3 className="font-bold text-lg mb-1">তাশকিল ও সংশোধন</h3>
+              <p className="text-slate-500 text-sm">হরকত এবং বাক্য সংশোধন</p>
+            </div>
+
+            <div onClick={() => setView('inshas')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
+              <Edit3 className="h-8 w-8 text-pink-600 mb-4" />
+              <h3 className="font-bold text-lg mb-1">ইনশা ও রচনা</h3>
+              <p className="text-slate-500 text-sm">দরখাস্ত, চিঠি এবং রচনা</p>
+            </div>
+
             <div onClick={() => setView('ai-settings')} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition-all hover:-translate-y-1">
               <Settings className="h-8 w-8 text-slate-600 mb-4" />
               <h3 className="font-bold text-lg mb-1">AI ও গ্লোবাল সেটিংস</h3>
@@ -158,6 +185,15 @@ export default function Admin() {
         )}
         {view === 'analytics' && (
           <AdminAnalytics />
+        )}
+        {view === 'translations' && (
+          <AdminTranslations />
+        )}
+        {view === 'tashkils' && (
+          <AdminTashkils />
+        )}
+        {view === 'inshas' && (
+          <AdminInshas />
         )}
       </main>
     </div>

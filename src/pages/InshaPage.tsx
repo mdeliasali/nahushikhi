@@ -7,89 +7,8 @@ import { Copy, Check, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 
-const applicationText = {
-  ar: `إِلَى مُدِيرِ الْمَدْرَسَةِ
-الْمَوْضُوعُ: طَلَبُ الْإِجَازَةِ لِثَلَاثَةِ أَيَّامٍ
-أَيُّهَا الْمُدِيرُ الْمُحْتَرَمُ،
-أَرْفَعُ إِلَى حَضْرَتِكُمُ الْكَرِيمَةِ أَنِّي طَالِبٌ فِي الصَّفِّ الْعَاشِرِ.
-وَالسَّبَبُ أَنَّنِي مَرِيضٌ وَلَا أَسْتَطِيعُ حُضُورَ الدِّرَاسَةِ.
-فَأَرْجُو مِنْكُمْ مَنْحِي إِجَازَةً لِمُدَّةِ ثَلَاثَةِ أَيَّامٍ.
-وَلَكُمْ جَزِيلُ الشُّكْرِ.
-الْمُخْلِصُ، ....................`,
-  bn: `বরাবর, প্রধান শিক্ষক মহোদয়
-বিষয়: তিন দিনের ছুটির আবেদন
-জনাব,
-সবিনয় নিবেদন এই যে, আমি দশম শ্রেণির একজন ছাত্র।
-কারণ হলো আমি অসুস্থ এবং মাদ্রাসায় উপস্থিত হতে পারছি না।
-তাই অনুগ্রহ করে আমাকে তিন দিনের ছুটি দানে বাধিত করবেন।
-আপনাকে অনেক ধন্যবাদ।
-বিনীত নিবেদক, ....................`,
-  keyPhrases: [
-    { ar: "طَلَبُ الْإِجَازَةِ", bn: "ছুটির আবেদন" },
-    { ar: "أَرْفَعُ إِلَى حَضْرَتِكُمُ", bn: "আপনার সমীপে পেশ করছি" },
-    { ar: "لَا أَسْتَطِيعُ حُضُورَ الدِّرَاسَةِ", bn: "ক্লাসে উপস্থিত হতে পারছি না" },
-    { ar: "وَلَكُمْ جَزِيلُ الشُّكْرِ", bn: "আপনাকে অনেক ধন্যবাদ" }
-  ]
-};
-
-const letterText = {
-  ar: `أَخِي الْكَرِيمُ،
-السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ،
-أَرْجُو أَنْ تَكُونَ بِخَيْرٍ. أَنَا بِخَيْرٍ وَالْحَمْدُ للهِ.
-أَكْتُبُ إِلَيْكَ هَذِهِ الرِّسَالَةَ لِأُخْبِرَكَ أَنَّنِي بِحَاجَةٍ إِلَى شِرَاءِ بَعْضِ الْكُتُبِ الدِّرَاسِيَّةِ.
-وَلِذَلِكَ، أَرْجُو مِنْكَ أَنْ تُرْسِلَ لِي أَلْفَ (1000) تَكَا.
-مَعَ خَالِصِ تَحِيَّاتِي وَسَلَامِي.
-أَخُوكَ الْمُحِبُّ، ....................`,
-  bn: `প্রিয় ভাই,
-আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহ।
-আশা করি আপনি ভালো আছেন। আলহামদুলিল্লাহ, আমিও ভালো আছি।
-আমি এই চিঠিটি আপনাকে জানাচ্ছি যে আমার কিছু পাঠ্যবই কেনার প্রয়োজন।
-সেজন্য, অনুগ্রহ করে আমাকে ১০০০ টাকা পাঠাবেন।
-আমার আন্তরিক সালাম ও শুভেচ্ছা রইল।
-আপনার স্নেহের ভাই, ....................`,
-  keyPhrases: [
-    { ar: "أَرْجُو أَنْ تَكُونَ بِخَيْرٍ", bn: "আশা করি আপনি ভালো আছেন" },
-    { ar: "أَكْتُبُ إِلَيْكَ هَذِهِ الرِّسَالَةَ", bn: "আমি আপনাকে এই চিঠি লিখছি" },
-    { ar: "بِحَاجَةٍ إِلَى شِرَاءِ الْكُتُبِ", bn: "বই কেনার প্রয়োজন" },
-    { ar: "أَرْجُو مِنْكَ أَنْ تُرْسِلَ", bn: "অনুগ্রহ করে পাঠাবেন" }
-  ]
-};
-
-const essays = [
-  {
-    id: "time",
-    title: "সময়ের মূল্য",
-    ar: `الْوَقْتُ مِنْ أَثْمَنِ الْأَشْيَاءِ فِي حَيَاةِ الْإِنْسَانِ. هُوَ كَالسَّيْفِ إِنْ لَمْ تَقْطَعْهُ قَطَعَكَ.
-يَجِبُ عَلَيْنَا أَنْ نَسْتَغِلَّ أَوْقَاتَنَا فِي الْأَعْمَالِ الصَّالِحَةِ وَالْمُفِيدَةِ. فَالْوَقْتُ الَّذِي يَمْضِي لَا يَعُودُ أَبَدًا.
-وَقَدْ حَثَّنَا الْإِسْلَامُ عَلَى أَهَمِّيَّةِ الْوَقْتِ، فَالْمُسْلِمُ الْعَاقِلُ هُوَ مَنْ يُحَافِظُ عَلَى وَقْتِهِ.`,
-    keySentences: [
-      { ar: "الْوَقْتُ كَالسَّيْفِ إِنْ لَمْ تَقْطَعْهُ قَطَعَكَ", bn: "সময় তরবারির মতো, তুমি তাকে না কাটলে সে তোমাকে কাটবে" },
-      { ar: "فَالْوَقْتُ الَّذِي يَمْضِي لَا يَعُودُ أَبَدًا", bn: "যে সময় চলে যায় তা আর ফিরে আসে না" }
-    ]
-  },
-  {
-    id: "ilm",
-    title: "ইলমের ফযিলত",
-    ar: `الْعِلْمُ نُورٌ وَالْجَهْلُ ظُلْمَةٌ. طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ وَمُسْلِمَةٍ.
-بِالْعِلْمِ يَرْتَقِي الْإِنْسَانُ وَتُبْنَى الْأُمَمُ. إِنَّ الْعُلَمَاءَ وَرَثَةُ الْأَنْبِيَاءِ، وَلَمْ يُوَرِّثُوا دِينَارًا وَلَا دِرْهَمًا إِنَّمَا وَرَّثُوا الْعِلْمَ.
-لِذَلِكَ يَجِبُ عَلَى كُلِّ طَالِبٍ أَنْ يَجْتَهِدَ فِي طَلَبِ الْعِلْمِ.`,
-    keySentences: [
-      { ar: "طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ", bn: "জ্ঞান অর্জন করা প্রত্যেক মুসলমানের উপর ফরজ" },
-      { ar: "إِنَّ الْعُلَمَاءَ وَرَثَةُ الْأَنْبِيَاءِ", bn: "নিশ্চয়ই আলেমগণ নবীদের উত্তরসূরি" }
-    ]
-  },
-  {
-    id: "madrasa",
-    title: "মাদ্রাসা",
-    ar: `مَدْرَسَتِي هِيَ بَيْتِي الثَّانِي. فِيهَا أَتَعَلَّمُ الْقُرْآنَ وَالْحَدِيثَ وَالْعُلُومَ النَّافِعَةَ.
-أُحِبُّ أَسَاتِذَتِي لِأَنَّهُمْ يُعَلِّمُونَنَا الْأَخْلَاقَ الْحَسَنَةَ. بِنَايَةُ مَدْرَسَتِي جَمِيلَةٌ وَنَظِيفَةٌ، وَفِيهَا مَكْتَبَةٌ كَبِيرَةٌ.
-أَنَا أَفْتَخِرُ بِأَنَّنِي طَالِبٌ فِي هَذِهِ الْمَدْرَسَةِ الْعَرِيقَةِ.`,
-    keySentences: [
-      { ar: "مَدْرَسَتِي هِيَ بَيْتِي الثَّانِي", bn: "আমার মাদ্রাসা আমার দ্বিতীয় বাড়ি" },
-      { ar: "أَنَا أَفْتَخِرُ بِأَنَّنِي طَالِبٌ فِي هَذِهِ الْمَدْرَسَةِ", bn: "আমি এই মাদ্রাসার ছাত্র হওয়ায় গর্বিত" }
-    ]
-  }
-];
+import { useEffect } from 'react';
+import { useInshas } from '@/hooks/usePracticeTools';
 
 function TextCard({ 
   arText, 
@@ -162,12 +81,12 @@ function TextCard({
           মুখস্থ করার বাক্য
         </h3>
         <div className="space-y-3">
-          {keyPhrases.map((phrase, idx) => (
+          {keyPhrases && keyPhrases.length > 0 ? keyPhrases.map((phrase, idx) => (
             <div key={idx} className="bg-white p-3 rounded-xl shadow-sm border border-emerald-50 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
               <p className="text-gray-600 font-medium md:w-1/2">{phrase.bn}</p>
               <p className="font-arabic text-xl text-emerald-800 md:w-1/2 text-right" dir="rtl">{phrase.ar}</p>
             </div>
-          ))}
+          )) : <p className="text-sm text-emerald-600">কোনো বাক্য পাওয়া যায়নি</p>}
         </div>
       </div>
     </div>
@@ -175,8 +94,24 @@ function TextCard({
 }
 
 export default function InshaPage() {
-  const [activeEssay, setActiveEssay] = useState(essays[0]);
   const navigate = useNavigate();
+  const { inshas, loading } = useInshas();
+  
+  const applications = inshas.filter(i => i.type === 'application');
+  const letters = inshas.filter(i => i.type === 'letter');
+  const essaysData = inshas.filter(i => i.type === 'essay');
+
+  const [activeEssayId, setActiveEssayId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (essaysData.length > 0 && !activeEssayId) {
+      setActiveEssayId(essaysData[0].id);
+    }
+  }, [essaysData, activeEssayId]);
+
+  const application = applications[0] || { title: 'কোনো ডাটা নেই', ar_text: '', bn_text: '', key_phrases_json: [] };
+  const letter = letters[0] || { title: 'কোনো ডাটা নেই', ar_text: '', bn_text: '', key_phrases_json: [] };
+  const activeEssay = essaysData.find(e => e.id === activeEssayId) || essaysData[0] || { title: 'কোনো ডাটা নেই', ar_text: '', key_phrases_json: [] };
 
   return (
     <Layout>
@@ -218,42 +153,50 @@ export default function InshaPage() {
             </TabsList>
             
             <TabsContent value="application" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <TextCard 
-                arText={applicationText.ar} 
-                bnText={applicationText.bn} 
-                keyPhrases={applicationText.keyPhrases} 
-              />
+              {loading ? <div className="text-center py-10 text-emerald-600">লোড হচ্ছে...</div> : (
+                <TextCard 
+                  arText={application.ar_text || ''} 
+                  bnText={application.bn_text || ''} 
+                  keyPhrases={application.key_phrases_json || []} 
+                />
+              )}
             </TabsContent>
             
             <TabsContent value="letter" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <TextCard 
-                arText={letterText.ar} 
-                bnText={letterText.bn} 
-                keyPhrases={letterText.keyPhrases} 
-              />
+              {loading ? <div className="text-center py-10 text-emerald-600">লোড হচ্ছে...</div> : (
+                <TextCard 
+                  arText={letter.ar_text || ''} 
+                  bnText={letter.bn_text || ''} 
+                  keyPhrases={letter.key_phrases_json || []} 
+                />
+              )}
             </TabsContent>
             
             <TabsContent value="essay" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <div className="mb-6 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                {essays.map(essay => (
-                  <Button
-                    key={essay.id}
-                    variant={activeEssay.id === essay.id ? "default" : "outline"}
-                    className={`whitespace-nowrap rounded-full ${
-                      activeEssay.id === essay.id 
-                        ? 'bg-emerald-600 hover:bg-emerald-700' 
-                        : 'border-emerald-200 text-emerald-700 bg-white hover:bg-emerald-50'
-                    }`}
-                    onClick={() => setActiveEssay(essay)}
-                  >
-                    {essay.title}
-                  </Button>
-                ))}
-              </div>
-              <TextCard 
-                arText={activeEssay.ar} 
-                keyPhrases={activeEssay.keySentences} 
-              />
+              {loading ? <div className="text-center py-10 text-emerald-600">লোড হচ্ছে...</div> : (
+                <>
+                  <div className="mb-6 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                    {essaysData.map(essay => (
+                      <Button
+                        key={essay.id}
+                        variant={activeEssay.id === essay.id ? "default" : "outline"}
+                        className={`whitespace-nowrap rounded-full ${
+                          activeEssay.id === essay.id 
+                            ? 'bg-emerald-600 hover:bg-emerald-700' 
+                            : 'border-emerald-200 text-emerald-700 bg-white hover:bg-emerald-50'
+                        }`}
+                        onClick={() => setActiveEssayId(essay.id)}
+                      >
+                        {essay.title}
+                      </Button>
+                    ))}
+                  </div>
+                  <TextCard 
+                    arText={activeEssay.ar_text || ''} 
+                    keyPhrases={activeEssay.key_phrases_json || []} 
+                  />
+                </>
+              )}
             </TabsContent>
           </Tabs>
         </div>

@@ -7,69 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, X, ArrowRight, RotateCcw, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const correctionData = [
-  { wrong: "كَانَ عُثْمَانُ (رض) غَنِي", correct: "كَانَ عُثْمَانُ (رض) غَنِيًّا", rule: "كان এর খবর মানসুব হয়" },
-  { wrong: "ذَهَبَ خَالِدٌ إِلَى الْمَدْرَسَة", correct: "ذَهَبَ خَالِدٌ إِلَى الْمَدْرَسَةِ", rule: "হরফে জার-এর পর মাজরুর" },
-  { wrong: "إِنَّ اللهَ خَالِقًا", correct: "إِنَّ اللهَ خَالِقٌ", rule: "إن এর খবর মারফু" },
-  { wrong: "هَذَا هِيَ أَخُوكَ", correct: "هَذَا هُوَ أَخُوكَ", rule: "মুযাক্কারের দামির هو" },
-  { wrong: "قَرَأْتُ عِشْرُونَ كِتَابًا", correct: "قَرَأْتُ عِشْرِينَ كِتَابًا", rule: "মানসুব অবস্থায় عشرين" },
-];
+import { useTashkils } from '@/hooks/usePracticeTools';
 
-const tashkilData = [
-  { 
-    noHaraka: "الظلم مرتعه وخيم", 
-    withHaraka: "اَلظُّلْمُ مَرْتَعُهُ وَخِيمٌ", 
-    meaning: "অত্যাচারের পরিণতি ভয়াবহ",
-    iraab: [
-      { word: "اَلظُّلْمُ", role: "মুবতাদা", haraka: "রফা (যম্মা)" },
-      { word: "مَرْتَعُهُ", role: "মুবতাদা সানি", haraka: "রফা (যম্মা)" },
-      { word: "وَخِيمٌ", role: "খবর", haraka: "রফা (যম্মা)" }
-    ]
-  },
-  { 
-    noHaraka: "المؤمن بشره في وجهه", 
-    withHaraka: "اَلْمُؤْمِنُ بِشْرُهُ فِي وَجْهِهِ", 
-    meaning: "মুমিনের হাসি তার মুখে",
-    iraab: [
-      { word: "اَلْمُؤْمِنُ", role: "মুবতাদা", haraka: "রফা (যম্মা)" },
-      { word: "بِشْرُهُ", role: "মুবতাদা সানি", haraka: "রফা (যম্মা)" },
-      { word: "فِي وَجْهِهِ", role: "যার মাজরুর (খবর)", haraka: "জর (কাসরা)" }
-    ]
-  },
-  { 
-    noHaraka: "قراءة القران تزيد الايمان", 
-    withHaraka: "قِرَاءَةُ الْقُرْآنِ تَزِيدُ الْإِيمَانَ", 
-    meaning: "কুরআন তিলাওয়াত ঈমান বৃদ্ধি করে",
-    iraab: [
-      { word: "قِرَاءَةُ", role: "মুযাফ (মুবতাদা)", haraka: "রফা (যম্মা)" },
-      { word: "الْقُرْآنِ", role: "মুযাফ ইলাইহি", haraka: "জর (কাসরা)" },
-      { word: "تَزِيدُ", role: "ফেল", haraka: "রফা (যম্মা)" },
-      { word: "الْإِيمَانَ", role: "মাফউল বিহি", haraka: "নসব (ফাতহা)" }
-    ]
-  },
-  { 
-    noHaraka: "الطالب يلعب في البيت", 
-    withHaraka: "اَلطَّالِبُ يَلْعَبُ فِي الْبَيْتِ", 
-    meaning: "ছাত্রটি ঘরে খেলছে",
-    iraab: [
-      { word: "اَلطَّالِبُ", role: "মুবতাদা", haraka: "রফা (যম্মা)" },
-      { word: "يَلْعَبُ", role: "ফেল", haraka: "রফা (যম্মা)" },
-      { word: "فِي الْبَيْتِ", role: "যার মাজরুর", haraka: "জর (কাসরা)" }
-    ]
-  },
-  { 
-    noHaraka: "الطامع في وثاق الذل", 
-    withHaraka: "اَلطَّامِعُ فِي وَثَاقِ الذُّلِّ", 
-    meaning: "লোভী ব্যক্তি লাঞ্ছনার শৃঙ্খলে",
-    iraab: [
-      { word: "اَلطَّامِعُ", role: "মুবতাদা", haraka: "রফা (যম্মা)" },
-      { word: "فِي وَثَاقِ", role: "যার মাজরুর", haraka: "জর (কাসরা)" },
-      { word: "الذُّلِّ", role: "মুযাফ ইলাইহি", haraka: "জর (কাসরা)" }
-    ]
-  }
-];
-
-function CorrectionTab() {
+function CorrectionTab({ correctionData }: { correctionData: any[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
@@ -170,7 +110,7 @@ function CorrectionTab() {
   );
 }
 
-function HarakatTab() {
+function HarakatTab({ tashkilData }: { tashkilData: any[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
@@ -271,6 +211,21 @@ function HarakatTab() {
 
 export default function TashkilPage() {
   const navigate = useNavigate();
+  const { tashkils, loading } = useTashkils();
+
+  const correctionData = tashkils.filter(t => t.type === 'correction').map(t => ({
+    wrong: t.wrong_text,
+    correct: t.correct_text,
+    rule: t.rule_text
+  }));
+
+  const tashkilData = tashkils.filter(t => t.type === 'harakat').map(t => ({
+    noHaraka: t.no_haraka_text,
+    withHaraka: t.correct_text,
+    meaning: t.meaning,
+    iraab: t.iraab_json || []
+  }));
+
   return (
     <Layout>
       <div className="bg-amber-50 min-h-screen pb-24">
@@ -306,13 +261,13 @@ export default function TashkilPage() {
             
             <TabsContent value="correction" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <Card className="p-6 shadow-lg border-none bg-white/80 backdrop-blur-sm rounded-2xl">
-                <CorrectionTab />
+                {loading ? <div className="text-center py-10 text-amber-600">লোড হচ্ছে...</div> : <CorrectionTab correctionData={correctionData} />}
               </Card>
             </TabsContent>
             
             <TabsContent value="harakat" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <Card className="p-6 shadow-lg border-none bg-white/80 backdrop-blur-sm rounded-2xl">
-                <HarakatTab />
+                {loading ? <div className="text-center py-10 text-amber-600">লোড হচ্ছে...</div> : <HarakatTab tashkilData={tashkilData} />}
               </Card>
             </TabsContent>
           </Tabs>

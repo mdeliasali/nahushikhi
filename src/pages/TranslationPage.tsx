@@ -7,29 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Check, X, ArrowRight, RotateCcw, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
+import { useTranslations } from '@/hooks/usePracticeTools';
 
 type TranslationMode = 'ar-to-bn' | 'bn-to-ar';
 
-const arToBnData = [
-  { ar: "دَخَلَتْ عَائِشَةُ فِي الْمَكْتَبَةِ", bn: "আয়েশা পাঠাগারে প্রবেশ করল" },
-  { ar: "الْحَيَاءُ شُعْبَةٌ مِنَ الْإِيمَانِ", bn: "লজ্জা ঈমানের একটি শাখা" },
-  { ar: "اِرْحَمُوا مَنْ فِي الْأَرْضِ يَرْحَمْكُمْ مَنْ فِي السَّمَاءِ", bn: "জমিনে যারা আছে তাদের দয়া করো, আসমানে যিনি আছেন তিনি তোমাদের দয়া করবেন" },
-  { ar: "عَدُوٌّ عَاقِلٌ خَيْرٌ مِنْ صَدِيقٍ جَاهِلٍ", bn: "জ্ঞানী শত্রু মূর্খ বন্ধুর চেয়ে উত্তম" },
-  { ar: "اَلْجَنَّةُ تَحْتَ أَقْدَامِ الْأُمَّهَاتِ", bn: "মায়েদের পায়ের নিচে জান্নাত" },
-  { ar: "الْعِلْمُ نُورٌ وَالْجَهْلُ ظُلْمَةٌ", bn: "জ্ঞান আলো এবং মূর্খতা অন্ধকার" },
-  { ar: "طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ", bn: "জ্ঞান অর্জন প্রতিটি মুসলমানের উপর ফরজ" },
-  { ar: "الْوَقْتُ كَالسَّيْفِ إِنْ لَمْ تَقْطَعْهُ قَطَعَكَ", bn: "সময় তরবারির মতো, না কাটলে সে তোমাকে কেটে ফেলবে" },
-];
 
-const bnToArData = [
-  { bn: "ইমরান জুমার দিন রোজা রেখেছে", ar: "صَامَ عِمْرَانُ يَوْمَ الْجُمُعَةِ" },
-  { bn: "যেমন কর্ম তেমন ফল", ar: "كَمَا تَزْرَعُ تَحْصُدُ" },
-  { bn: "দয়া করে যে, দয়া পায় সে", ar: "مَنْ رَحِمَ رُحِمَ" },
-  { bn: "পুণ্য পাপকে মুছে ফেলে", ar: "الْحَسَنَاتُ يُذْهِبْنَ السَّيِّئَاتِ" },
-  { bn: "জ্ঞানী ব্যক্তি আল্লাহর বন্ধু", ar: "اَلْعَالِمُ وَلِيُّ اللهِ" },
-  { bn: "আল্লাহ যাকে ইচ্ছা হেদায়াত দান করেন", ar: "اَللهُ يَهْدِي مَنْ يَشَاءُ" },
-  { bn: "মায়ের পায়ের নিচে জান্নাত", ar: "اَلْجَنَّةُ تَحْتَ أَقْدَامِ الْأُمَّهَاتِ" },
-];
 
 export default function TranslationPage() {
   const navigate = useNavigate();
@@ -40,9 +22,13 @@ export default function TranslationPage() {
   const [score, setScore] = useState({ correct: 0, wrong: 0 });
   const [graded, setGraded] = useState(false);
 
-  const currentData = mode === 'ar-to-bn' ? arToBnData : bnToArData;
-  const currentItem = currentData[currentIndex];
-  const progress = ((currentIndex) / currentData.length) * 100;
+  const { translations, loading } = useTranslations();
+  const currentData = translations.filter(t => t.mode === mode).map(t => ({
+    ar: t.ar_text,
+    bn: t.bn_text
+  }));
+  const currentItem = currentData[currentIndex] || { ar: '', bn: '' };
+  const progress = currentData.length > 0 ? ((currentIndex) / currentData.length) * 100 : 0;
 
   const handleNext = () => {
     if (currentIndex < currentData.length - 1) {
@@ -93,6 +79,9 @@ export default function TranslationPage() {
           </div>
         </div>
 
+        {loading ? (
+          <div className="flex justify-center py-20 text-violet-600">লোড হচ্ছে...</div>
+        ) : (
         <div className="max-w-2xl mx-auto px-4 space-y-6">
           <div className="flex justify-center bg-white p-1 rounded-full shadow-sm">
             <Button
@@ -213,6 +202,7 @@ export default function TranslationPage() {
             </Card>
           )}
         </div>
+        )}
       </div>
     </Layout>
   );
