@@ -3,9 +3,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import Layout from '@/components/Layout';
 import { useMockTestSessions } from '@/hooks/useExamPrep';
-import { Trophy, Target, History, BookOpen, AlertCircle, TrendingUp, BarChart3, User, Edit2, Loader2 } from 'lucide-react';
+import { Trophy, Target, History, BookOpen, AlertCircle, TrendingUp, BarChart3, User, Edit2, Loader2, Shield } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -15,7 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 
 export default function ProgressPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const { data: profile } = useUserProfile();
   const { data: sessions, isLoading: sessionsLoading } = useMockTestSessions();
 
@@ -109,23 +110,35 @@ export default function ProgressPage() {
               <User className="h-12 w-12 text-white/90" />
             )}
           </div>
-          <div className="text-center sm:text-left z-10">
-            <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                {profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || "শিক্ষার্থী"}
-              </h1>
-              <button 
-                onClick={() => setIsEditOpen(true)}
-                className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
-                aria-label="প্রোফাইল এডিট করুন"
-                title="প্রোফাইল এডিট করুন"
-              >
-                <Edit2 className="w-4 h-4 text-white" />
-              </button>
+          <div className="text-center sm:text-left z-10 w-full flex flex-col sm:flex-row justify-between items-center sm:items-start gap-4">
+            <div>
+              <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  {profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || "শিক্ষার্থী"}
+                </h1>
+                <button 
+                  onClick={() => setIsEditOpen(true)}
+                  className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                  aria-label="প্রোফাইল এডিট করুন"
+                  title="প্রোফাইল এডিট করুন"
+                >
+                  <Edit2 className="w-4 h-4 text-white" />
+                </button>
+              </div>
+              <p className="text-indigo-100 font-medium opacity-90 flex items-center justify-center sm:justify-start gap-1">
+                <BookOpen className="w-4 h-4" /> {profile?.exam_class === 'alim' ? 'আলিম' : 'দাখিল'} পরীক্ষার্থী
+              </p>
             </div>
-            <p className="text-indigo-100 font-medium opacity-90 flex items-center justify-center sm:justify-start gap-1">
-              <BookOpen className="w-4 h-4" /> {profile?.exam_class === 'alim' ? 'আলিম' : 'দাখিল'} পরীক্ষার্থী
-            </p>
+            
+            {isAdmin && (
+              <Button 
+                onClick={() => navigate('/admin')}
+                className="bg-white/20 hover:bg-white/30 text-white border-none rounded-xl backdrop-blur-md"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                অ্যাডমিন প্যানেল
+              </Button>
+            )}
           </div>
         </div>
 
