@@ -50,7 +50,7 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     const form = new FormData(e.currentTarget);
-    const { error, needsOnboarding } = await signUp(
+    const { error, needsOnboarding, needsEmailVerification } = await signUp(
       form.get('email') as string,
       form.get('password') as string,
       form.get('displayName') as string,
@@ -59,8 +59,12 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success('অ্যাকাউন্ট তৈরি হয়েছে!');
-      if (needsOnboarding) navigate('/onboarding');
+      if (needsEmailVerification) {
+        toast.success('অ্যাকাউন্ট তৈরি হয়েছে! দয়া করে আপনার ইমেইল চেক করুন এবং অ্যাকাউন্ট ভেরিফাই করুন।');
+      } else {
+        toast.success('অ্যাকাউন্ট তৈরি হয়েছে!');
+        if (needsOnboarding) navigate('/onboarding');
+      }
     }
     setLoading(false);
   };
@@ -95,7 +99,7 @@ export default function Auth() {
                   <Label htmlFor="login-email" className="font-bold text-xs uppercase tracking-wider ml-1">ইমেইল</Label>
                   <div className="relative group">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                    <Input id="login-email" name="email" type="email" required placeholder="name@example.com" 
+                    <Input id="login-email" name="email" type="email" required placeholder="name@example.com" autoComplete="email"
                       className="pl-11 h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
                   </div>
                 </div>
@@ -108,7 +112,7 @@ export default function Auth() {
                   </div>
                   <div className="relative group">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                    <Input id="login-password" name="password" type="password" required placeholder="••••••••" 
+                    <Input id="login-password" name="password" type="password" required placeholder="••••••••" autoComplete="current-password"
                       className="pl-11 h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
                   </div>
                 </div>
@@ -133,7 +137,7 @@ export default function Auth() {
                   <Label htmlFor="signup-name" className="font-bold text-xs uppercase tracking-wider ml-1">আপনার নাম</Label>
                   <div className="relative group">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                    <Input id="signup-name" name="displayName" required placeholder="আপনার নাম লিখুন" 
+                    <Input id="signup-name" name="displayName" required placeholder="আপনার নাম লিখুন" autoComplete="name"
                       className="pl-11 h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
                   </div>
                 </div>
@@ -141,7 +145,7 @@ export default function Auth() {
                   <Label htmlFor="signup-email" className="font-bold text-xs uppercase tracking-wider ml-1">ইমেইল</Label>
                   <div className="relative group">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                    <Input id="signup-email" name="email" type="email" required placeholder="name@example.com" 
+                    <Input id="signup-email" name="email" type="email" required placeholder="name@example.com" autoComplete="email"
                       className="pl-11 h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
                   </div>
                 </div>
@@ -163,7 +167,7 @@ export default function Auth() {
                   <Label htmlFor="signup-password" className="font-bold text-xs uppercase tracking-wider ml-1">পাসওয়ার্ড</Label>
                   <div className="relative group">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                    <Input id="signup-password" name="password" type="password" required minLength={6} placeholder="কমপক্ষে ৬ অক্ষর" 
+                    <Input id="signup-password" name="password" type="password" required minLength={6} placeholder="কমপক্ষে ৬ অক্ষর" autoComplete="new-password"
                       className="pl-11 h-12 rounded-2xl border-none bg-secondary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
                   </div>
                 </div>

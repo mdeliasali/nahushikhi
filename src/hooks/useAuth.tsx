@@ -7,7 +7,7 @@ interface AuthContextType {
   session: Session | null;
   isAdmin: boolean;
   loading: boolean;
-  signUp: (email: string, password: string, displayName: string, examClass: string) => Promise<{ error: Error | null, needsOnboarding: boolean }>;
+  signUp: (email: string, password: string, displayName: string, examClass: string) => Promise<{ error: Error | null, needsOnboarding: boolean, needsEmailVerification: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -65,7 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: window.location.origin,
       },
     });
-    return { error: error as Error | null, needsOnboarding: !error && !!data.user };
+    return { 
+      error: error as Error | null, 
+      needsOnboarding: !error && !!data.session,
+      needsEmailVerification: !error && !data.session
+    };
   };
 
   const signIn = async (email: string, password: string) => {
