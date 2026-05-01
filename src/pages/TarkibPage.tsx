@@ -20,36 +20,38 @@ interface PositionedNode extends TreeNode {
   id: string;
   level: number;
   children?: PositionedNode[];
-  width: number; // total width used by this subtree
 }
 
-// --- Layout Logic (Bottom-Up X calculation) ---
-function calculateLayout(node: TreeNode, level: number = 0, nextX: { val: number }): PositionedNode {
-  const children = (node.children || []).map(child => calculateLayout(child, level + 1, nextX));
+// --- Layout Logic ---
+function getTreeMaxDepth(node: TreeNode): number {
+  if (!node.children || node.children.length === 0) return 0;
+  return 1 + Math.max(...node.children.map(getTreeMaxDepth));
+}
+
+function calculatePositions(node: TreeNode, level: number, maxDepth: number, nextX: { val: number }): PositionedNode {
+  const children = (node.children || []).map(child => calculatePositions(child, level + 1, maxDepth, nextX));
   
   let x: number;
-  let width: number;
-
   if (!children || children.length === 0) {
-    // Word node
     x = nextX.val;
-    nextX.val += 180; // horizontal spacing
-    width = 180;
+    nextX.val += 200;
   } else {
-    // Parent node - center between its children
-    const firstChild = children[0];
-    const lastChild = children[children.length - 1];
-    x = (firstChild.x + lastChild.x) / 2;
-    width = lastChild.x - firstChild.x + 180;
+    const firstX = children[0].x;
+    const lastX = children[children.length - 1].x;
+    x = (firstX + lastX) / 2;
   }
 
+  // Words (leaves) should be at the top. 
+  // Leaves are at various levels, but we want them all at the top row.
+  // Actually, the textbook style has words at the top, and then analysis flows down.
+  // So we assign Y based on level, but we need to ensure "text" nodes are treated as the starting point.
+  
   return {
     ...node,
     id: Math.random().toString(36).substr(2, 9),
     x,
-    y: level * 160 + 80, // vertical spacing
+    y: level * 180 + 100,
     level,
-    width,
     children: children.length > 0 ? children : undefined
   };
 }
@@ -69,16 +71,16 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
   const width = maxX - minX;
   const height = maxY;
 
-  const renderTree = (node: PositionedNode) => {
+  const renderNode = (node: PositionedNode) => {
     const isLeaf = !node.children || node.children.length === 0;
-    
+
     return (
       <g key={node.id}>
-        {/* 1. If leaf, draw the Arabic word at the top */}
-        {isLeaf && (
+        {/* Word Text (Only for leaves) */}
+        {node.text && (
           <text
             x={node.x}
-            y={node.y}
+            y={node.y - 60}
             textAnchor="middle"
             className="text-5xl font-bold fill-slate-900"
             style={{ fontFamily: "'Amiri', serif" }}
@@ -87,21 +89,20 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
           </text>
         )}
 
-        {/* 2. Arrow down from word (or bracket) to the role label */}
-        <line
-          x1={node.x}
-          y1={isLeaf ? node.y + 15 : node.y - 70}
-          x2={node.x}
-          y2={isLeaf ? node.y + 50 : node.y - 30}
-          stroke="#000"
-          strokeWidth="1.5"
-          markerEnd="url(#arrowhead)"
-        />
+        {/* Arrow from Text to Role (if leaf) */}
+        {node.text && (
+          <line
+            x1={node.x} y1={node.y - 45}
+            x2={node.x} y2={node.y - 20}
+            stroke="#000" strokeWidth="1.5"
+            markerEnd="url(#arrowhead)"
+          />
+        )}
 
-        {/* 3. The Role Label */}
+        {/* Role Label */}
         <text
           x={node.x}
-          y={isLeaf ? node.y + 75 : node.y}
+          y={node.y}
           textAnchor="middle"
           className="text-xl font-bold fill-slate-800"
           style={{ fontFamily: "'Amiri', serif" }}
@@ -109,44 +110,33 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
           {node.role}
         </text>
 
-        {/* 4. If parent, draw the bracket connecting children roles */}
-        {!isLeaf && node.children && (
+        {/* Bracket and Arrow for children */}
+        {node.children && node.children.length > 0 && (
           <g>
-            {/* Horizontal bar of the bracket */}
+            {/* Brackets from children to a common bar */}
             <path
-              d={`
-                M ${node.children[0].x} ${node.y - 120}
-                L ${node.children[node.children.length - 1].x} ${node.y - 120}
-              `}
-              fill="none"
-              stroke="#000"
-              strokeWidth="1.5"
+              d={`M ${node.children[0].x} ${node.y - 120} L ${node.children[node.children.length - 1].x} ${node.y - 120}`}
+              fill="none" stroke="#000" strokeWidth="1.5"
             />
-            {/* Vertical stubs from children roles up to the bar */}
             {node.children.map(child => (
               <line
-                key={`stub-${child.id}`}
-                x1={child.x}
-                y1={child.level === 1 ? child.y + 90 : child.y + 15}
-                x2={child.x}
-                y2={node.y - 120}
-                stroke="#000"
-                strokeWidth="1.5"
+                key={`link-${child.id}`}
+                x1={child.x} y1={child.y + 15}
+                x2={child.x} y2={node.y - 120}
+                stroke="#000" strokeWidth="1.5"
               />
             ))}
-            {/* Center stub down to parent arrow */}
+            {/* Arrow from common bar down to parent role */}
             <line
-              x1={node.x}
-              y1={node.y - 120}
-              x2={node.x}
-              y2={node.y - 70}
-              stroke="#000"
-              strokeWidth="1.5"
+              x1={node.x} y1={node.y - 120}
+              x2={node.x} y2={node.y - 25}
+              stroke="#000" strokeWidth="1.5"
+              markerEnd="url(#arrowhead)"
             />
           </g>
         )}
 
-        {node.children?.map(renderTree)}
+        {node.children?.map(renderNode)}
       </g>
     );
   };
@@ -163,7 +153,7 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
           <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
         </marker>
       </defs>
-      {renderTree(root)}
+      {renderNode(root)}
     </svg>
   );
 }
@@ -211,8 +201,10 @@ export default function TarkibPage() {
       if (data?.error) throw new Error(data.error);
 
       if (data?.tree) {
-        // Reverse children to match RTL if needed, but layout handles it
-        setTreeData(calculateLayout(data.tree, 0, { val: 0 }));
+        // We want the WORDS at the top. The words are usually at the deepest level.
+        // So we need to normalize the tree so that all leaves (words) are at the same top level.
+        const maxDepth = getTreeMaxDepth(data.tree);
+        setTreeData(calculatePositions(data.tree, 0, maxDepth, { val: 0 }));
       } else if (data?.analysis) {
         setTextFallback(data.analysis);
       } else {
