@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,143 +14,190 @@ interface TreeNode {
   children?: TreeNode[];
 }
 
-interface PositionedNode extends TreeNode {
+// --- Constants ---
+const H_SPACING = 200;   // horizontal gap between leaf nodes
+const ROW_HEIGHT = 160;   // vertical gap between levels
+const TOP_PAD = 80;       // padding at top of SVG
+
+// --- Helper: get max depth of tree ---
+function getMaxDepth(node: TreeNode): number {
+  if (!node.children || node.children.length === 0) return 0;
+  return 1 + Math.max(...node.children.map(getMaxDepth));
+}
+
+// --- Layout: assign (x, y) to each node ---
+// KEY INSIGHT: Y is INVERTED so that leaves (words) are at the TOP
+// and root (sentence type) is at the BOTTOM
+interface LayoutNode extends TreeNode {
   x: number;
   y: number;
   id: string;
-  level: number;
-  children?: PositionedNode[];
+  children?: LayoutNode[];
 }
 
-// --- Layout Logic ---
-function getTreeMaxDepth(node: TreeNode): number {
-  if (!node.children || node.children.length === 0) return 0;
-  return 1 + Math.max(...node.children.map(getTreeMaxDepth));
-}
+function layoutTree(node: TreeNode, level: number, maxDepth: number, nextLeafX: { val: number }): LayoutNode {
+  // Process children first (bottom-up X)
+  const laidOutChildren = (node.children || []).map(child =>
+    layoutTree(child, level + 1, maxDepth, nextLeafX)
+  );
 
-function calculatePositions(node: TreeNode, level: number, maxDepth: number, nextX: { val: number }): PositionedNode {
-  const children = (node.children || []).map(child => calculatePositions(child, level + 1, maxDepth, nextX));
-  
+  // X: leaf gets next slot, parent centers over children
   let x: number;
-  if (!children || children.length === 0) {
-    x = nextX.val;
-    nextX.val += 200;
+  if (laidOutChildren.length === 0) {
+    x = nextLeafX.val;
+    nextLeafX.val += H_SPACING;
   } else {
-    const firstX = children[0].x;
-    const lastX = children[children.length - 1].x;
-    x = (firstX + lastX) / 2;
+    x = (laidOutChildren[0].x + laidOutChildren[laidOutChildren.length - 1].x) / 2;
   }
 
-  // Words (leaves) should be at the top. 
-  // Leaves are at various levels, but we want them all at the top row.
-  // Actually, the textbook style has words at the top, and then analysis flows down.
-  // So we assign Y based on level, but we need to ensure "text" nodes are treated as the starting point.
-  
+  // Y: INVERTED — level 0 (root) at bottom, deepest level at top
+  // deepest level = maxDepth, we want it at Y = TOP_PAD
+  // root level = 0, we want it at Y = TOP_PAD + maxDepth * ROW_HEIGHT
+  const y = TOP_PAD + (maxDepth - level) * ROW_HEIGHT;
+
   return {
     ...node,
-    id: Math.random().toString(36).substr(2, 9),
     x,
-    y: level * 180 + 100,
-    level,
-    children: children.length > 0 ? children : undefined
+    y,
+    id: `n${level}_${Math.random().toString(36).substr(2, 6)}`,
+    children: laidOutChildren.length > 0 ? laidOutChildren : undefined,
   };
 }
 
-// --- SVG Component ---
-function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
-  const nodes: PositionedNode[] = [];
-  const flatten = (n: PositionedNode) => {
-    nodes.push(n);
-    n.children?.forEach(flatten);
-  };
-  flatten(root);
+// --- SVG Rendering ---
+function TarkibSVG({ root, scale }: { root: LayoutNode; scale: number }) {
+  // Collect all nodes for viewBox calculation
+  const allNodes: LayoutNode[] = [];
+  const collect = (n: LayoutNode) => { allNodes.push(n); n.children?.forEach(collect); };
+  collect(root);
 
-  const minX = Math.min(...nodes.map(n => n.x)) - 100;
-  const maxX = Math.max(...nodes.map(n => n.x)) + 100;
-  const maxY = Math.max(...nodes.map(n => n.y)) + 150;
-  const width = maxX - minX;
-  const height = maxY;
+  const padding = 120;
+  const minX = Math.min(...allNodes.map(n => n.x)) - padding;
+  const maxX = Math.max(...allNodes.map(n => n.x)) + padding;
+  const minY = Math.min(...allNodes.map(n => n.y)) - 90; // room for word text above top nodes
+  const maxY = Math.max(...allNodes.map(n => n.y)) + 50;  // room below bottom role
+  const svgW = maxX - minX;
+  const svgH = maxY - minY;
 
-  const renderNode = (node: PositionedNode) => {
+  function renderNode(node: LayoutNode): JSX.Element {
     const isLeaf = !node.children || node.children.length === 0;
+
+    // For a LEAF node (word):
+    //   [Word text]   at (x, y - 55)    ← big Arabic word
+    //       |
+    //       ↓         arrow from y-40 to y-15
+    //   [Role label]  at (x, y)          ← مبتدأ، خبر etc.
+    //
+    // For a PARENT node (e.g. جملة اسمية):
+    //   Its children are ABOVE it (smaller Y).
+    //   From each child's role label, draw a vertical line DOWN.
+    //   Connect them with a horizontal bar.
+    //   From the bar center, draw a vertical line + arrow DOWN to this node's role.
 
     return (
       <g key={node.id}>
-        {/* Word Text (Only for leaves) */}
-        {node.text && (
-          <text
-            x={node.x}
-            y={node.y - 60}
-            textAnchor="middle"
-            className="text-5xl font-bold fill-slate-900"
-            style={{ fontFamily: "'Amiri', serif" }}
-          >
-            {node.text}
-          </text>
+        {/* === LEAF: Word text above role === */}
+        {isLeaf && node.text && (
+          <>
+            <text
+              x={node.x}
+              y={node.y - 55}
+              textAnchor="middle"
+              fontSize="40"
+              fontWeight="bold"
+              fill="#1e293b"
+              style={{ fontFamily: "'Amiri', 'Noto Naskh Arabic', serif" }}
+            >
+              {node.text}
+            </text>
+            {/* Arrow from word down to role */}
+            <line
+              x1={node.x} y1={node.y - 38}
+              x2={node.x} y2={node.y - 15}
+              stroke="#1e293b" strokeWidth="1.8"
+              markerEnd="url(#arrow)"
+            />
+          </>
         )}
 
-        {/* Arrow from Text to Role (if leaf) */}
-        {node.text && (
-          <line
-            x1={node.x} y1={node.y - 45}
-            x2={node.x} y2={node.y - 20}
-            stroke="#000" strokeWidth="1.5"
-            markerEnd="url(#arrowhead)"
-          />
-        )}
-
-        {/* Role Label */}
+        {/* === Role label === */}
         <text
           x={node.x}
           y={node.y}
           textAnchor="middle"
-          className="text-xl font-bold fill-slate-800"
-          style={{ fontFamily: "'Amiri', serif" }}
+          fontSize="20"
+          fontWeight="bold"
+          fill="#334155"
+          style={{ fontFamily: "'Amiri', 'Noto Naskh Arabic', serif" }}
         >
           {node.role}
         </text>
 
-        {/* Bracket and Arrow for children */}
-        {node.children && node.children.length > 0 && (
-          <g>
-            {/* Brackets from children to a common bar */}
-            <path
-              d={`M ${node.children[0].x} ${node.y - 120} L ${node.children[node.children.length - 1].x} ${node.y - 120}`}
-              fill="none" stroke="#000" strokeWidth="1.5"
-            />
-            {node.children.map(child => (
-              <line
-                key={`link-${child.id}`}
-                x1={child.x} y1={child.y + 15}
-                x2={child.x} y2={node.y - 120}
-                stroke="#000" strokeWidth="1.5"
-              />
-            ))}
-            {/* Arrow from common bar down to parent role */}
-            <line
-              x1={node.x} y1={node.y - 120}
-              x2={node.x} y2={node.y - 25}
-              stroke="#000" strokeWidth="1.5"
-              markerEnd="url(#arrowhead)"
-            />
-          </g>
-        )}
+        {/* === PARENT: Bracket connecting children down to this node === */}
+        {!isLeaf && node.children && node.children.length > 0 && (() => {
+          const children = node.children!;
+          // Children's role Y (they are ABOVE this node)
+          const childY = children[0].y;
+          // This node's role Y
+          const thisY = node.y;
+          // The bracket bar sits midway between children and this node
+          const barY = childY + (thisY - childY) * 0.4;
 
+          return (
+            <g>
+              {/* Vertical lines from each child's role DOWN to the bar */}
+              {children.map(child => (
+                <line
+                  key={`vline-${child.id}`}
+                  x1={child.x} y1={child.y + 12}
+                  x2={child.x} y2={barY}
+                  stroke="#1e293b" strokeWidth="1.8"
+                />
+              ))}
+
+              {/* Horizontal bar connecting all children */}
+              {children.length > 1 && (
+                <line
+                  x1={children[0].x} y1={barY}
+                  x2={children[children.length - 1].x} y2={barY}
+                  stroke="#1e293b" strokeWidth="1.8"
+                />
+              )}
+
+              {/* Vertical line + arrow from bar center DOWN to this role */}
+              <line
+                x1={node.x} y1={barY}
+                x2={node.x} y2={thisY - 15}
+                stroke="#1e293b" strokeWidth="1.8"
+                markerEnd="url(#arrow)"
+              />
+            </g>
+          );
+        })()}
+
+        {/* Recurse children */}
         {node.children?.map(renderNode)}
       </g>
     );
-  };
+  }
 
   return (
-    <svg 
-      width={width * scale} 
-      height={height * scale} 
-      viewBox={`${minX} 0 ${width} ${height}`}
-      className="bg-white"
+    <svg
+      width={svgW * scale}
+      height={svgH * scale}
+      viewBox={`${minX} ${minY} ${svgW} ${svgH}`}
+      style={{ background: 'white' }}
     >
       <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
+        <marker
+          id="arrow"
+          markerWidth="10"
+          markerHeight="8"
+          refX="9"
+          refY="4"
+          orient="auto"
+        >
+          <polygon points="0 0, 10 4, 0 8" fill="#1e293b" />
         </marker>
       </defs>
       {renderNode(root)}
@@ -167,9 +214,19 @@ export default function TarkibPage() {
   const [tahkikLoading, setTahkikLoading] = useState(false);
   const [sentence, setSentence] = useState('');
   const [loading, setLoading] = useState(false);
-  const [treeData, setTreeData] = useState<PositionedNode | null>(null);
+  const [treeData, setTreeData] = useState<LayoutNode | null>(null);
   const [textFallback, setTextFallback] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
+
+  // DEBUG: mock data for testing
+  const [showDemo, setShowDemo] = useState(false);
+  const demoTree: TreeNode = {
+    role: 'جملة اسمية',
+    children: [
+      { text: 'زيدٌ', role: 'مبتدأ' },
+      { text: 'قائمٌ', role: 'خبر' },
+    ],
+  };
 
   const handleTahkik = async () => {
     if (!tahkikInput.trim()) return;
@@ -194,17 +251,14 @@ export default function TarkibPage() {
     setTextFallback(null);
     try {
       const { data, error } = await supabase.functions.invoke('analyze-sentence', {
-        body: { sentence, action: 'parse_tarkib' }
+        body: { sentence, action: 'parse_tarkib' },
       });
-
       if (error) throw new Error(error.message || 'Server unavailable');
       if (data?.error) throw new Error(data.error);
 
       if (data?.tree) {
-        // We want the WORDS at the top. The words are usually at the deepest level.
-        // So we need to normalize the tree so that all leaves (words) are at the same top level.
-        const maxDepth = getTreeMaxDepth(data.tree);
-        setTreeData(calculatePositions(data.tree, 0, maxDepth, { val: 0 }));
+        const maxDepth = getMaxDepth(data.tree);
+        setTreeData(layoutTree(data.tree, 0, maxDepth, { val: 0 }));
       } else if (data?.analysis) {
         setTextFallback(data.analysis);
       } else {
@@ -215,6 +269,12 @@ export default function TarkibPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleShowDemo = () => {
+    const maxDepth = getMaxDepth(demoTree);
+    setTreeData(layoutTree(demoTree, 0, maxDepth, { val: 0 }));
+    setShowDemo(true);
   };
 
   return (
@@ -230,7 +290,9 @@ export default function TarkibPage() {
                 <MessageSquare className="h-6 w-6 text-primary" />
                 তারকিব পার্সার
               </h1>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">বাক্য বিশ্লেষণ ও গ্রামার ম্যাপ</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                বাক্য বিশ্লেষণ ও গ্রামার ম্যাপ
+              </p>
             </div>
           </div>
 
@@ -292,6 +354,16 @@ export default function TarkibPage() {
                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'বিশ্লেষণ'}
                   </Button>
                 </div>
+                {/* Demo button for testing */}
+                {!treeData && !loading && (
+                  <Button
+                    variant="outline"
+                    onClick={handleShowDemo}
+                    className="text-xs"
+                  >
+                    ডেমো দেখুন (زيدٌ قائمٌ)
+                  </Button>
+                )}
               </div>
 
               {loading && (
@@ -300,15 +372,15 @@ export default function TarkibPage() {
                     <div className="absolute inset-0 border-4 border-primary/20 rounded-full animate-pulse" />
                     <Loader2 className="h-20 w-20 text-primary animate-spin" />
                   </div>
-                  <p className="text-slate-500 font-bold">AI আপনার বাক্যের তারকিব ডায়াগ্রাম তৈরি করছে...</p>
+                  <p className="text-slate-500 font-bold">AI আপনার বাক্যের তারকিব ডায়াগ্রাম তৈরি করছে...</p>
                 </div>
               )}
 
               {treeData && (
-                <div className="relative rounded-[3rem] border border-black/5 shadow-2xl bg-white p-12 overflow-auto custom-scrollbar">
-                   <div className="flex justify-center min-w-max" dir="rtl">
-                      <TarkibSVG root={treeData} scale={scale} />
-                   </div>
+                <div className="relative rounded-[2rem] border border-black/5 shadow-xl bg-white p-8 sm:p-12 overflow-auto">
+                  <div className="flex justify-center min-w-max">
+                    <TarkibSVG root={treeData} scale={scale} />
+                  </div>
                 </div>
               )}
 
