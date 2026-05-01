@@ -20,37 +20,42 @@ interface PositionedNode extends TreeNode {
   id: string;
   level: number;
   children?: PositionedNode[];
+  width: number; // total width used by this subtree
 }
 
-// --- Layout Logic ---
-function calculateLayout(node: TreeNode, level: number = 0, currentLeafIndex: { val: number }): PositionedNode {
-  const children = (node.children || []).map(child => calculateLayout(child, level + 1, currentLeafIndex));
+// --- Layout Logic (Bottom-Up X calculation) ---
+function calculateLayout(node: TreeNode, level: number = 0, nextX: { val: number }): PositionedNode {
+  const children = (node.children || []).map(child => calculateLayout(child, level + 1, nextX));
   
   let x: number;
-  if (children.length === 0) {
-    // Leaf node (Word) - Distribute from right to left
-    x = currentLeafIndex.val * 180;
-    currentLeafIndex.val++;
+  let width: number;
+
+  if (!children || children.length === 0) {
+    // Word node
+    x = nextX.val;
+    nextX.val += 180; // horizontal spacing
+    width = 180;
   } else {
-    // Parent node - Center between children
-    const minX = Math.min(...children.map(c => c.x));
-    const maxX = Math.max(...children.map(c => c.x));
-    x = (minX + maxX) / 2;
+    // Parent node - center between its children
+    const firstChild = children[0];
+    const lastChild = children[children.length - 1];
+    x = (firstChild.x + lastChild.x) / 2;
+    width = lastChild.x - firstChild.x + 180;
   }
 
   return {
     ...node,
     id: Math.random().toString(36).substr(2, 9),
     x,
-    y: level * 140 + 80,
+    y: level * 160 + 80, // vertical spacing
     level,
+    width,
     children: children.length > 0 ? children : undefined
   };
 }
 
-// --- SVG Components ---
+// --- SVG Component ---
 function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
-  // Find boundaries
   const nodes: PositionedNode[] = [];
   const flatten = (n: PositionedNode) => {
     nodes.push(n);
@@ -60,68 +65,17 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
 
   const minX = Math.min(...nodes.map(n => n.x)) - 100;
   const maxX = Math.max(...nodes.map(n => n.x)) + 100;
-  const maxY = Math.max(...nodes.map(n => n.y)) + 100;
+  const maxY = Math.max(...nodes.map(n => n.y)) + 150;
   const width = maxX - minX;
   const height = maxY;
 
-  const renderConnections = (node: PositionedNode) => {
-    if (!node.children || node.children.length === 0) return null;
-
+  const renderTree = (node: PositionedNode) => {
+    const isLeaf = !node.children || node.children.length === 0;
+    
     return (
-      <g key={`links-${node.id}`}>
-        {node.children.map((child, i) => {
-          // Orthogonal path with rounded corners
-          const startX = child.x;
-          const startY = child.y + 20; // Just below child label
-          const endX = node.x;
-          const endY = node.y - 40;   // Just above parent label
-          
-          const midY = (startY + endY) / 2;
-          const radius = 20;
-
-          // Drawing a "joint" bracket
-          // 1. Line down from child
-          // 2. Curve to horizontal
-          // 3. Horizontal to parent X
-          // 4. Curve down to parent
-          
-          let path = "";
-          if (Math.abs(startX - endX) < 1) {
-            path = `M ${startX} ${startY} L ${endX} ${endY}`;
-          } else {
-            const dirX = endX > startX ? 1 : -1;
-            path = `
-              M ${startX} ${startY}
-              L ${startX} ${midY - radius}
-              Q ${startX} ${midY} ${startX + radius * dirX} ${midY}
-              L ${endX - radius * dirX} ${midY}
-              Q ${endX} ${midY} ${endX} ${midY + radius}
-              L ${endX} ${endY}
-            `;
-          }
-
-          return (
-            <path
-              key={`link-${node.id}-${i}`}
-              d={path}
-              fill="none"
-              stroke="#000"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          );
-        })}
-        {node.children.map(renderConnections)}
-      </g>
-    );
-  };
-
-  const renderNodes = (node: PositionedNode) => {
-    const isWord = node.level === 0;
-    return (
-      <g key={`node-${node.id}`}>
-        {isWord ? (
+      <g key={node.id}>
+        {/* 1. If leaf, draw the Arabic word at the top */}
+        {isLeaf && (
           <text
             x={node.x}
             y={node.y}
@@ -131,29 +85,68 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
           >
             {node.text}
           </text>
-        ) : null}
-        
-        {/* Label below word or for grouping */}
+        )}
+
+        {/* 2. Arrow down from word (or bracket) to the role label */}
+        <line
+          x1={node.x}
+          y1={isLeaf ? node.y + 15 : node.y - 70}
+          x2={node.x}
+          y2={isLeaf ? node.y + 50 : node.y - 30}
+          stroke="#000"
+          strokeWidth="1.5"
+          markerEnd="url(#arrowhead)"
+        />
+
+        {/* 3. The Role Label */}
         <text
           x={node.x}
-          y={isWord ? node.y + 45 : node.y}
+          y={isLeaf ? node.y + 75 : node.y}
           textAnchor="middle"
-          className="text-lg font-bold fill-slate-700"
+          className="text-xl font-bold fill-slate-800"
           style={{ fontFamily: "'Amiri', serif" }}
         >
           {node.role}
         </text>
 
-        {/* Small stub line between word and its role */}
-        {isWord && (
-          <line 
-            x1={node.x} y1={node.y + 10} 
-            x2={node.x} y2={node.y + 25} 
-            stroke="#000" strokeWidth="1" 
-          />
+        {/* 4. If parent, draw the bracket connecting children roles */}
+        {!isLeaf && node.children && (
+          <g>
+            {/* Horizontal bar of the bracket */}
+            <path
+              d={`
+                M ${node.children[0].x} ${node.y - 120}
+                L ${node.children[node.children.length - 1].x} ${node.y - 120}
+              `}
+              fill="none"
+              stroke="#000"
+              strokeWidth="1.5"
+            />
+            {/* Vertical stubs from children roles up to the bar */}
+            {node.children.map(child => (
+              <line
+                key={`stub-${child.id}`}
+                x1={child.x}
+                y1={child.level === 1 ? child.y + 90 : child.y + 15}
+                x2={child.x}
+                y2={node.y - 120}
+                stroke="#000"
+                strokeWidth="1.5"
+              />
+            ))}
+            {/* Center stub down to parent arrow */}
+            <line
+              x1={node.x}
+              y1={node.y - 120}
+              x2={node.x}
+              y2={node.y - 70}
+              stroke="#000"
+              strokeWidth="1.5"
+            />
+          </g>
         )}
 
-        {node.children?.map(renderNodes)}
+        {node.children?.map(renderTree)}
       </g>
     );
   };
@@ -163,15 +156,19 @@ function TarkibSVG({ root, scale }: { root: PositionedNode, scale: number }) {
       width={width * scale} 
       height={height * scale} 
       viewBox={`${minX} 0 ${width} ${height}`}
-      className="bg-white rounded-3xl"
+      className="bg-white"
     >
-      {renderConnections(root)}
-      {renderNodes(root)}
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
+        </marker>
+      </defs>
+      {renderTree(root)}
     </svg>
   );
 }
 
-// --- Page ---
+// --- Main Page ---
 export default function TarkibPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'tarkib' | 'tahkik'>('tarkib');
@@ -214,6 +211,7 @@ export default function TarkibPage() {
       if (data?.error) throw new Error(data.error);
 
       if (data?.tree) {
+        // Reverse children to match RTL if needed, but layout handles it
         setTreeData(calculateLayout(data.tree, 0, { val: 0 }));
       } else if (data?.analysis) {
         setTextFallback(data.analysis);
@@ -229,7 +227,7 @@ export default function TarkibPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen flex flex-col bg-[#FDFCFB]">
+      <div className="min-h-screen flex flex-col bg-white">
         <header className="px-6 h-20 border-b border-black/5 flex items-center justify-between glass-morphism sticky top-0 z-50">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate(-1)}>
@@ -284,20 +282,20 @@ export default function TarkibPage() {
 
           {activeTab === 'tarkib' && (
             <div className="space-y-6">
-              <div className="glass-card rounded-[2rem] p-6 space-y-4">
+              <div className="glass-card rounded-[2rem] p-6 space-y-4 shadow-sm border border-black/5">
                 <div className="flex gap-3">
                   <Input
                     value={sentence}
                     onChange={e => setSentence(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && analyzeSentence()}
                     placeholder="আরবি বাক্য লিখুন (উদা: الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ)"
-                    className="text-right font-serif text-lg h-16 rounded-3xl flex-1 shadow-sm px-8"
+                    className="text-right font-serif text-lg h-16 rounded-3xl flex-1 shadow-sm px-8 bg-slate-50/50 border-none focus:bg-white transition-all"
                     dir="rtl"
                   />
                   <Button
                     disabled={loading || !sentence}
                     onClick={analyzeSentence}
-                    className="h-16 px-8 rounded-3xl font-black text-lg gradient-primary"
+                    className="h-16 px-8 rounded-3xl font-black text-lg gradient-primary shadow-lg active:scale-95 transition-transform"
                   >
                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'বিশ্লেষণ'}
                   </Button>
@@ -310,12 +308,12 @@ export default function TarkibPage() {
                     <div className="absolute inset-0 border-4 border-primary/20 rounded-full animate-pulse" />
                     <Loader2 className="h-20 w-20 text-primary animate-spin" />
                   </div>
-                  <p className="text-slate-500 font-bold">AI আপনার বাক্যের তারকিব ম্যাপ তৈরি করছে...</p>
+                  <p className="text-slate-500 font-bold">AI আপনার বাক্যের তারকিব ডায়াগ্রাম তৈরি করছে...</p>
                 </div>
               )}
 
               {treeData && (
-                <div className="relative rounded-[3rem] border border-black/5 shadow-2xl bg-white p-8 overflow-auto custom-scrollbar">
+                <div className="relative rounded-[3rem] border border-black/5 shadow-2xl bg-white p-12 overflow-auto custom-scrollbar">
                    <div className="flex justify-center min-w-max" dir="rtl">
                       <TarkibSVG root={treeData} scale={scale} />
                    </div>
@@ -338,19 +336,19 @@ export default function TarkibPage() {
                   onChange={e => setTahkikInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleTahkik()}
                   placeholder="আরবি শব্দ লেখো... যেমন: الْمُجْتَهِدُ"
-                  className="text-right font-serif text-lg h-12 rounded-2xl flex-1"
+                  className="text-right font-serif text-lg h-12 rounded-2xl flex-1 shadow-sm px-6 bg-slate-50/50 border-none"
                   dir="rtl"
                 />
                 <Button
                   onClick={handleTahkik}
                   disabled={tahkikLoading || !tahkikInput.trim()}
-                  className="h-12 px-6 rounded-2xl font-bold"
+                  className="h-12 px-6 rounded-2xl font-bold gradient-primary shadow-md"
                 >
                   {tahkikLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'বিশ্লেষণ'}
                 </Button>
               </div>
               {tahkikResult && (
-                <div className="bg-secondary/30 rounded-2xl p-6 text-sm leading-relaxed whitespace-pre-wrap font-medium shadow-inner">
+                <div className="bg-white rounded-2xl p-6 text-sm leading-relaxed whitespace-pre-wrap font-medium shadow-sm border border-black/5">
                   {tahkikResult}
                 </div>
               )}
